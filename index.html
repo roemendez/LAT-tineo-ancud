@@ -264,6 +264,39 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.7;
 .form-group{margin-bottom:12px}
 .form-label{font-size:11px;color:#64748b;margin-bottom:5px;display:block}
 .form-input{width:100%}
+
+
+/* ═══════════════════ TEMA CLARO EJECUTIVO v3 ═══════════════════ */
+:root{
+  --bg:#f5f7fb; --panel:#ffffff; --panel2:#f8fafc; --text:#0f172a; --muted:#64748b;
+  --line:#dbe3ef; --blue:#1d4ed8; --cyan:#0891b2; --orange:#f59e0b; --red:#e11d48;
+}
+body{background:var(--bg)!important;color:var(--text)!important;max-width:100%!important}
+#header,.desktop-topbar{background:#ffffff!important;border-bottom:1px solid var(--line)!important;box-shadow:0 1px 3px rgba(15,23,42,.06)!important}
+#mobile-header{background:#ffffff!important}.hname,.desktop-brand div, .hrow{color:var(--text)!important}.htitle{color:#f59e0b!important}.hpct,.hpctlabel{color:#f59e0b!important}
+#app-layout,#main-content,#content{background:var(--bg)!important;color:var(--text)!important}
+#sidebar{background:#ffffff!important;border-right:1px solid var(--line)!important;box-shadow:1px 0 3px rgba(15,23,42,.04)!important}
+.sidebar-pct,.card,.config-section,.torre-item,.proto-tower-card,.partida-summary,.hito-card,.det-header{background:#ffffff!important;color:var(--text)!important;border-color:var(--line)!important;box-shadow:0 1px 3px rgba(15,23,42,.06)!important}
+.kpi{background:#ffffff!important;color:var(--text)!important;border-color:var(--line)!important;box-shadow:0 1px 2px rgba(15,23,42,.04)!important}
+.sidebar-btn{color:#475569!important}.sidebar-btn:hover{background:#f1f5f9!important;color:#0f172a!important}.sidebar-btn.active{background:#fff7ed!important;color:#ea580c!important;border-color:#fed7aa!important}
+.tab:not(.active),.filt:not(.active),.proto-tab:not(.active){background:#eef2f7!important;color:#475569!important}.tab.active,.filt.active,.proto-tab.active{background:#f59e0b!important;color:#111827!important}
+.bar-wrap{background:#e8edf5!important}.bar-fill{box-shadow:none!important}
+input[type=text],input[type=number],select,textarea,input[type=date]{background:#ffffff!important;color:#0f172a!important;border-color:#cbd5e1!important}
+.badge{color:#fff!important}.sec-title,.kpi-label,.torre-meta span,.form-label,.config-title,.config-label{color:#64748b!important}
+.torre-name,#modal-title,.back-btn{color:#f59e0b!important}
+#modal-box{background:#ffffff!important;color:#0f172a!important}
+#sync-dot,#sync-dot-desktop{background:#ecfdf5!important;color:#059669!important;border:1px solid #bbf7d0!important}
+/* corregir fondos oscuros inline dentro de dashboard y detalles */
+div[style*="background:#0f172a"], div[style*="background:#1e293b"], div[style*="background:#0c1220"]{background:#ffffff!important;color:#0f172a!important}
+div[style*="color:#f8fafc"], span[style*="color:#f8fafc"]{color:#0f172a!important}
+div[style*="color:#94a3b8"], span[style*="color:#94a3b8"], div[style*="color:#475569"], span[style*="color:#475569"], div[style*="color:#334155"], span[style*="color:#334155"]{color:#64748b!important}
+/* mantener colores de estado */
+div[style*="color:#f59e0b"], span[style*="color:#f59e0b"]{color:#f59e0b!important}
+div[style*="color:#3b82f6"], span[style*="color:#3b82f6"]{color:#2563eb!important}
+div[style*="color:#06b6d4"], span[style*="color:#06b6d4"]{color:#0891b2!important}
+div[style*="color:#10b981"], span[style*="color:#10b981"]{color:#059669!important}
+div[style*="color:#f43f5e"], span[style*="color:#f43f5e"]{color:#e11d48!important}
+
 </style>
 </head>
 <body>
@@ -1551,7 +1584,7 @@ function updateGlobalPct() {
   // Actualizar info de torres en sidebar
   const conf = TORRES.filter(t=>(avances[t.id]||{})._fnd).length;
   const infoEl = document.getElementById('sidebar-torres-info');
-  if (infoEl) infoEl.textContent = `${conf} / ${total} torres config.`;
+  if (infoEl) infoEl.textContent = `Línea 254 + especiales 6`;
 }
 
 function renderCurrentView() {
@@ -2053,54 +2086,44 @@ function fotoBadgeHtml(torreId) {
 // ── DASHBOARD ────────────────────────────────────────────────
 function renderDashboard() {
   const total = TORRES.length;
-  let sinConfig=0, impedimento=0;
-  let sumaIsla=0, sumaCont=0, cIsla=0, cCont=0;
+  const TORRES_LINEA_TOTAL = 254;
+  const TORRES_ESPECIALES_TOTAL = 6;
+  const ESPECIALES_IDS = ['1A','1B','2C','3C','4A','4B'];
+  let sinConfig=0, impedimento=0, sumaGlobal=0, sumaFnd=0, sumaMnt=0;
+  let islaTotal=0, contTotal=0, islaAv=0, contAv=0;
+  let lineaAv=0, especialesAv=0;
   let protoObs=0;
 
-  // Contadores Obras Civiles
   let oc_fndEnProceso=0, oc_fndLista=0, oc_mallaPend=0, oc_listaParaMontaje=0;
-
-  // Contadores Montaje
   let mnt_sinIniciar=0, mnt_prearmado=0, mnt_montajeListo=0, mnt_terminada=0;
-
-  // Contadores generales
-  let gen_sinInicio=0, gen_proceso=0;
 
   TORRES.forEach(t => {
     const av = avances[t.id]||{};
-    const est = getEstado(av);
     if (!av._fnd) { sinConfig++; return; }
+    const g = calcGlobal(av), fnd = calcFnd(av), mnt = calcMnt(av);
+    sumaGlobal += g; sumaFnd += fnd; sumaMnt += mnt;
     if (isImpedimento(av)) impedimento++;
-
-    // Avance sectorial
-    if (t.sector==='Isla')       { sumaIsla+=calcGlobal(av); cIsla++; }
-    else if (t.sector==='Continente') { sumaCont+=calcGlobal(av); cCont++; }
-
-    // Protocolos observados
+    if (ESPECIALES_IDS.includes(String(t.id))) especialesAv += g;
+    else lineaAv += g;
+    if (t.sector==='Isla') { islaTotal++; islaAv += g; }
+    if (t.sector==='Continente') { contTotal++; contAv += g; }
     getTorreProtocolos(t.id).forEach(p => { if(p.estado==='observado') protoObs++; });
 
-    const fnd  = calcFnd(av);
-    const mnt  = calcMnt(av);
     const malla = av.malla_tierra || 0;
     const genOK = isGeneralesOK(av);
     const prearmado = av.prearmado || 0;
     const montajeEstr = av.montaje_estructura || 0;
     const giroAplome  = av.giro_aplome_torque || 0;
-
-    // ── OBRAS CIVILES ──────────────────────────────
-    // "En proceso": actividad de fundación iniciada pero no completa
     const hasFndActivity = av._fnd && av._fnd!=='na' && (
       (av._fnd==='ancla'       && (av.trazado_anclas_p1||0) > 0) ||
       (av._fnd==='hormigon'    && (av.trazado_h_p1||0) > 0)      ||
       (av._fnd==='tradicional' && (av.trad_replanteo_p1||0) > 0)
     );
     if      (hasFndActivity && fnd < 0.999)            oc_fndEnProceso++;
-    else if (fnd >= 0.999 && malla < 0.999)             oc_fndLista++;
-    else if (fnd >= 0.999 && malla >= 0.999 && !genOK)  oc_mallaPend++;
+    else if (fnd >= 0.999 && malla < 0.999)            oc_fndLista++;
+    else if (fnd >= 0.999 && malla >= 0.999 && !genOK) oc_mallaPend++;
     else if (fnd >= 0.999 && genOK)                    oc_listaParaMontaje++;
 
-    // ── MONTAJE ────────────────────────────────────
-    // TODAS las torres con fundación 100%, sin importar generales
     if (fnd >= 0.999 && av._fnd && av._fnd !== 'na') {
       const mallaOK = (av.malla_tierra||0) >= 0.999;
       const giroOK  = (av.giro_aplome_torque||0) >= 0.999;
@@ -2112,135 +2135,130 @@ function renderDashboard() {
   });
 
   const configured = total - sinConfig;
-  const pctGlobal = total > 0 ? (sumaIsla+sumaCont)/total : 0;
-
-  // Totales OO.CC. para barra progreso
+  const pctGlobal = total ? sumaGlobal/total : 0;
+  const pctLinea = TORRES_LINEA_TOTAL ? lineaAv/TORRES_LINEA_TOTAL : 0;
+  const pctEspeciales = TORRES_ESPECIALES_TOTAL ? especialesAv/TORRES_ESPECIALES_TOTAL : 0;
+  const pctFnd = total ? sumaFnd/total : 0;
+  const pctMnt = total ? sumaMnt/total : 0;
   const oc_total = oc_fndEnProceso + oc_fndLista + oc_mallaPend + oc_listaParaMontaje;
+  const mnt_total = mnt_sinIniciar + mnt_prearmado + mnt_montajeListo + mnt_terminada;
 
-  // Helper card
+  const gaugeCard = (value, label, sub, color, onclick='') => {
+    const v = Math.max(0, Math.min(1, value||0));
+    return `<div ${onclick?`onclick="${onclick}"`:''} style="background:#fff;border:1px solid #dbe3ef;border-radius:14px;padding:14px 16px;box-shadow:0 1px 3px rgba(15,23,42,.06);${onclick?'cursor:pointer':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px">
+        <div>
+          <div style="font-size:12px;font-weight:900;color:#0f172a">${label}</div>
+          <div style="font-size:10px;color:#64748b;margin-top:2px">${sub}</div>
+        </div>
+        <div style="font-size:26px;font-weight:950;color:${color};line-height:1">${pct(v)}%</div>
+      </div>
+      <div style="height:12px;background:#edf2f7;border-radius:999px;overflow:hidden;position:relative">
+        <div style="height:100%;width:${pct(v)}%;background:${color};border-radius:999px"></div>
+      </div>
+    </div>`;
+  };
+
   const kpiCard = (val, label, sub, color, filtro) =>
-    `<div class="kpi" style="border:1px solid ${color}44;cursor:pointer" onclick="goListaFiltrada('${filtro}')">
-      <div style="font-size:22px;font-weight:900;color:${color}">${val}</div>
-      <div style="font-size:10px;font-weight:700;color:${color};margin-top:2px">${label}</div>
-      ${sub?`<div style="font-size:8px;color:#475569;margin-top:1px">${sub}</div>`:''}
+    `<div class="kpi" style="border:1px solid ${color}44;cursor:pointer;text-align:center" onclick="goListaFiltrada('${filtro}')">
+      <div style="font-size:24px;font-weight:900;color:${color}">${val}</div>
+      <div style="font-size:11px;font-weight:800;color:${color};margin-top:2px">${label}</div>
+      ${sub?`<div style="font-size:9px;color:#64748b;margin-top:1px">${sub}</div>`:''}
     </div>`;
 
-  return `<div style="padding-bottom:40px">
-
-    <!-- ══ AVANCE GLOBAL ══ -->
-    <div class="card" style="border:1px solid #f59e0b33;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px">
+  const nextHitos = [];
+  ['continente','isla','cruce'].forEach(key => {
+    (HITOS_DATA[key]||[]).forEach(h => {
+      if (h.fecha_real) return;
+      const est = calcHitoEstado(h);
+      const avInfo = (h.tipo==='fundacion'||h.tipo==='montaje') ? calcHitoAvanceTorres(h) : null;
+      nextHitos.push({...h, key, est, avInfo});
+    });
+  });
+  nextHitos.sort((a,b)=>{
+    const ra = a.est.estado==='atrasado'?0:a.est.estado==='en-riesgo'?1:a.est.estado==='proximo'?2:3;
+    const rb = b.est.estado==='atrasado'?0:b.est.estado==='en-riesgo'?1:b.est.estado==='proximo'?2:3;
+    if (ra!==rb) return ra-rb;
+    return (a.est.dias??9999)-(b.est.dias??9999);
+  });
+  const hitoCards = nextHitos.slice(0,4).map(h=>{
+    const avPct = h.avInfo ? h.avInfo.pct : 0;
+    const meta = h.meta_pct || 100;
+    const sectorName = h.key==='isla'?'Isla':h.key==='continente'?'Continente':'Cruce';
+    return `<div onclick="setHitoSector('${h.key}')" style="background:#ffffff;border:1px solid ${h.est.color}55;border-left:4px solid ${h.est.color};border-radius:10px;padding:10px;cursor:pointer;box-shadow:0 1px 2px rgba(15,23,42,.04)">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
         <div>
-          <div style="font-size:9px;color:#475569;letter-spacing:1px">AVANCE GLOBAL PROYECTO</div>
-          <div style="font-size:10px;color:#334155">sobre ${total} torres · ${configured} configuradas</div>
+          <div style="font-size:10px;color:#64748b;font-weight:800;letter-spacing:.5px">${sectorName} · Hito ${h.n}</div>
+          <div style="font-size:12px;color:#0f172a;font-weight:800;margin-top:2px;line-height:1.2">${h.desc}</div>
         </div>
-        <div style="font-size:30px;font-weight:900;color:#f59e0b">${pct(pctGlobal)}%</div>
+        <div style="font-size:10px;color:${h.est.color};font-weight:900;white-space:nowrap">${h.est.label}</div>
       </div>
-      ${bar(pctGlobal,'#f59e0b',8)}
-      <div style="display:flex;gap:10px;margin-top:8px">
-        <div style="flex:1;text-align:center;background:#1e293b;border-radius:7px;padding:6px">
-          <div style="font-size:9px;color:#475569">ISLA</div>
-          <div style="font-size:14px;font-weight:900;color:#06b6d4">${pct(cIsla?sumaIsla/cIsla:0)}%</div>
-          <div style="font-size:8px;color:#334155">${cIsla} config.</div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:#64748b">
+        <span>Avance: <b style="color:#0f172a">${avPct}% de ${meta}%</b></span><span>PM: ${formatFechaDMY(h.fecha_pm)}</span>
+      </div>
+      <div class="bar-wrap" style="height:7px;margin-top:5px"><div class="bar-fill" style="width:${Math.min(100,avPct)}%;background:${h.est.color};height:100%"></div></div>
+    </div>`;
+  }).join('');
+
+  return `<div style="padding-bottom:40px">
+    <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:22px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:18px;font-weight:900;color:#0f172a">Avance General del Proyecto</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px">Línea principal: 254 torres · Torres especiales: 6 · Última base: 08-06</div>
         </div>
-        <div style="flex:1;text-align:center;background:#1e293b;border-radius:7px;padding:6px">
-          <div style="font-size:9px;color:#475569">CONTINENTE</div>
-          <div style="font-size:14px;font-weight:900;color:#8b5cf6">${pct(cCont?sumaCont/cCont:0)}%</div>
-          <div style="font-size:8px;color:#334155">${cCont} config.</div>
+        <div onclick="goListaFiltrada('impedimento')" style="background:${impedimento>0?'#fff1f2':'#f8fafc'};border:1px solid ${impedimento>0?'#fecdd3':'#dbe3ef'};border-radius:12px;padding:10px 14px;text-align:center;cursor:pointer;min-width:130px">
+          <div style="font-size:24px;font-weight:900;color:#e11d48">${impedimento}</div>
+          <div style="font-size:11px;font-weight:800;color:#0f172a">Torres con restricción</div>
+          <div style="font-size:9px;color:#64748b">clic para revisar</div>
         </div>
-        <div style="flex:1;text-align:center;background:#1e293b;border-radius:7px;padding:6px">
-          <div style="font-size:9px;color:#475569">IMPEDIMENTOS</div>
-          <div style="font-size:14px;font-weight:900;color:#f43f5e">${impedimento}</div>
-          <div style="font-size:8px;color:#334155;cursor:pointer" onclick="goListaFiltrada('impedimento')">ver →</div>
-        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:stretch">
+        ${gaugeCard(pctGlobal,'Avance total ponderado','Línea + torres especiales','#f59e0b')}
+        ${gaugeCard(pctLinea,'Avance línea principal','254 torres de línea','#2563eb')}
+        ${gaugeCard(pctEspeciales,'Avance torres especiales','6 torres especiales / cruce','#7c3aed')}
+        ${gaugeCard(pctFnd,'Fundaciones','Anclas + hormigón + tradicional','#0891b2')}
+        ${gaugeCard(pctMnt,'Montaje estructuras','Prearmado, montaje, giro y aplome','#16a34a')}
       </div>
     </div>
 
-    <!-- ══ OBRAS CIVILES ══ -->
-    <div class="card" style="border:1px solid #06b6d433;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:11px;font-weight:700;color:#f8fafc;letter-spacing:.5px">OBRAS CIVILES</div>
-        <div style="font-size:10px;color:#64748b">${oc_total} torres con actividad</div>
+    <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:900;color:#0f172a">Obras Civiles</div>
+        <div style="font-size:11px;color:#64748b">${oc_total} torres con actividad</div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">
-        <div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center;border:1px solid #3b82f622;cursor:pointer" onclick="goListaFiltrada('proceso')">
-          <div style="font-size:18px;font-weight:900;color:#3b82f6">${oc_fndEnProceso}</div>
-          <div style="font-size:8px;color:#475569;margin-top:2px">Fnd. en proceso</div>
-        </div>
-        <div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center;border:1px solid #06b6d422;cursor:pointer" onclick="goListaFiltrada('ooccCivil')">
-          <div style="font-size:18px;font-weight:900;color:#06b6d4">${oc_fndLista}</div>
-          <div style="font-size:8px;color:#475569;margin-top:2px">Fnd. 100%</div>
-          <div style="font-size:7px;color:#334155">falta malla</div>
-        </div>
-        <div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center;border:1px solid #a78bfa22">
-          <div style="font-size:18px;font-weight:900;color:#a78bfa">${oc_mallaPend}</div>
-          <div style="font-size:8px;color:#475569;margin-top:2px">Malla lista</div>
-          <div style="font-size:7px;color:#334155">pend. otras gen.</div>
-        </div>
-        <div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center;border:1px solid #f59e0b44;cursor:pointer" onclick="goListaFiltrada('mntPrearmado')">
-          <div style="font-size:18px;font-weight:900;color:#f59e0b">${mnt_prearmado + mnt_montajeListo + mnt_terminada}</div>
-          <div style="font-size:8px;color:#f59e0b;font-weight:700;margin-top:2px">Mnt. iniciado</div>
-          <div style="font-size:7px;color:#334155">en cualquier etapa</div>
-        </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+        ${kpiCard(oc_fndEnProceso,'Fnd. en proceso','', '#2563eb','proceso')}
+        ${kpiCard(oc_fndLista,'Fnd. 100%','falta malla', '#0891b2','ooccCivil')}
+        ${kpiCard(oc_mallaPend,'Malla lista','pend. otras gen.', '#7c3aed','ooccCivil')}
+        ${kpiCard(oc_listaParaMontaje,'Lista montaje','OO.CC. completas', '#f59e0b','oocc')}
       </div>
-      <!-- Barra apilada OO.CC. -->
-      ${oc_total > 0 ? `<div style="font-size:8px;color:#475569;margin-bottom:3px">Distribución sobre torres con actividad civil</div>
-      <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px">
-        <div style="flex:${oc_fndEnProceso};background:#3b82f6"></div>
-        <div style="flex:${oc_fndLista};background:#06b6d4"></div>
-        <div style="flex:${oc_mallaPend};background:#a78bfa"></div>
-        <div style="flex:${oc_listaParaMontaje};background:#f59e0b"></div>
-      </div>` : ''}
+      ${oc_total>0?`<div style="font-size:10px;color:#64748b;margin-bottom:4px">Distribución sobre torres con actividad civil</div><div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px;background:#e8edf5"><div style="flex:${oc_fndEnProceso};background:#2563eb"></div><div style="flex:${oc_fndLista};background:#0891b2"></div><div style="flex:${oc_mallaPend};background:#7c3aed"></div><div style="flex:${oc_listaParaMontaje};background:#f59e0b"></div></div>`:''}
     </div>
 
-    <!-- ══ MONTAJE ══ -->
-    <div class="card" style="border:1px solid #10b98133;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:11px;font-weight:700;color:#f8fafc;letter-spacing:.5px">MONTAJE ESTRUCTURAS</div>
-        <div style="font-size:10px;color:#64748b">${mnt_sinIniciar+mnt_prearmado+mnt_montajeListo+mnt_terminada} torres en scope</div>
+    <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:900;color:#0f172a">Montaje Estructuras</div>
+        <div style="font-size:11px;color:#64748b">${mnt_total} torres en scope</div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">
-        <div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center;border:1px solid #33415522;cursor:pointer" onclick="goListaFiltrada('mntSinIniciar')">
-          <div style="font-size:18px;font-weight:900;color:#475569">${mnt_sinIniciar}</div>
-          <div style="font-size:8px;color:#475569;margin-top:2px">Sin iniciar</div>
-          <div style="font-size:7px;color:#334155">OO.CC. lista</div>
-        </div>
-        <div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center;border:1px solid #3b82f633;cursor:pointer" onclick="goListaFiltrada('mntPrearmado')">
-          <div style="font-size:18px;font-weight:900;color:#3b82f6">${mnt_prearmado}</div>
-          <div style="font-size:8px;color:#3b82f6;font-weight:700;margin-top:2px">Prearmado ✓</div>
-          <div style="font-size:7px;color:#334155">en proceso</div>
-        </div>
-        <div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center;border:1px solid #f59e0b33;cursor:pointer" onclick="goListaFiltrada('mntMontaje')">
-          <div style="font-size:18px;font-weight:900;color:#f59e0b">${mnt_montajeListo}</div>
-          <div style="font-size:8px;color:#f59e0b;font-weight:700;margin-top:2px">Montaje ✓</div>
-          <div style="font-size:7px;color:#334155">falta giro/aplome</div>
-        </div>
-        <div style="background:#0f172a;border-radius:8px;padding:8px;text-align:center;border:1px solid #10b98133;cursor:pointer" onclick="goListaFiltrada('terminada')">
-          <div style="font-size:18px;font-weight:900;color:#10b981">${mnt_terminada}</div>
-          <div style="font-size:8px;color:#10b981;font-weight:700;margin-top:2px">Terminadas</div>
-          <div style="font-size:7px;color:#334155">giro/aplome ✓</div>
-        </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+        ${kpiCard(mnt_sinIniciar,'Sin iniciar','OO.CC. lista', '#64748b','mntSinIniciar')}
+        ${kpiCard(mnt_prearmado,'Prearmado','en proceso', '#2563eb','mntPrearmado')}
+        ${kpiCard(mnt_montajeListo,'Montaje','falta giro/aplome', '#f59e0b','mntMontaje')}
+        ${kpiCard(mnt_terminada,'Terminadas','giro/aplome ✓', '#059669','terminada')}
       </div>
-      ${(mnt_sinIniciar+mnt_prearmado+mnt_montajeListo+mnt_terminada) > 0 ? `
-      <div style="font-size:8px;color:#475569;margin-bottom:3px">Distribución del scope de montaje</div>
-      <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px">
-        <div style="flex:${mnt_sinIniciar};background:#475569"></div>
-        <div style="flex:${mnt_prearmado};background:#3b82f6"></div>
-        <div style="flex:${mnt_montajeListo};background:#f59e0b"></div>
-        <div style="flex:${mnt_terminada};background:#10b981"></div>
-      </div>` : ''}
+      ${mnt_total>0?`<div style="font-size:10px;color:#64748b;margin-bottom:4px">Distribución del scope de montaje</div><div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px;background:#e8edf5"><div style="flex:${mnt_sinIniciar};background:#64748b"></div><div style="flex:${mnt_prearmado};background:#2563eb"></div><div style="flex:${mnt_montajeListo};background:#f59e0b"></div><div style="flex:${mnt_terminada};background:#059669"></div></div>`:''}
     </div>
 
-    <!-- ══ ALERTAS ══ -->
-    ${protoObs>0?`<div class="card" style="border:1px solid #f59e0b55;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="goView('protocolos')">
-      <div><div style="font-size:10px;color:#f59e0b;letter-spacing:1px;font-weight:700">⚠️ PROTOCOLOS OBSERVADOS</div>
-      <div style="font-size:11px;color:#64748b;margin-top:2px">Toca para ver →</div></div>
-      <div style="font-size:28px;font-weight:900;color:#f59e0b">${protoObs}</div>
-    </div>`:''}
-    ${configured===0?`<div style="background:#f43f5e22;border:1px solid #f43f5e44;border-radius:10px;padding:10px 14px;font-size:11px;color:#f43f5e;margin-bottom:10px">
-      ⚠️ Ingresa a una torre y configura el tipo de fundación para comenzar
-    </div>`:''}
+    <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div><div style="font-size:15px;font-weight:900;color:#0f172a">Hitos multables próximos</div><div style="font-size:11px;color:#64748b;margin-top:2px">Clic en un hito para ir al módulo de detalle</div></div>
+        <button onclick="goView('hitos')" style="border:none;background:#f59e0b;color:#111827;font-size:11px;font-weight:900;border-radius:8px;padding:8px 12px">Ver todos</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">${hitoCards || '<div style="font-size:12px;color:#64748b">No hay hitos próximos con fecha definida.</div>'}</div>
+    </div>
 
+    ${protoObs>0?`<div class="card" style="border:1px solid #f59e0b55;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="goView('protocolos')"><div><div style="font-size:12px;color:#f59e0b;letter-spacing:1px;font-weight:900">⚠️ Protocolos observados</div><div style="font-size:11px;color:#64748b;margin-top:2px">Toca para ver →</div></div><div style="font-size:28px;font-weight:900;color:#f59e0b">${protoObs}</div></div>`:''}
   </div>`;
 }
 function computed(fn){ try{return fn();}catch{return 0;} }
