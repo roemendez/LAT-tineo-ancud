@@ -682,34 +682,101 @@ const HITOS_DATA = {
   "continente": [
     {
       "n": 1,
-      "desc": "Avance Fundaciones 50% — Continente",
-      "fecha_pm": "POR DEFINIR",
+      "desc": "Avance fundaciones 50% completadas",
+      "fecha_pm": "2026-06-25",
+      "fecha_doc": "2026-07-05",
       "meta_pct": 50,
       "tipo": "fundacion",
       "tramo": "continente"
     },
     {
       "n": 2,
-      "desc": "Término Fundaciones 100% — Continente",
-      "fecha_pm": "POR DEFINIR",
+      "desc": "Término fundaciones 100%",
+      "fecha_pm": "2026-08-08",
+      "fecha_doc": "2026-08-15",
       "meta_pct": 100,
       "tipo": "fundacion",
       "tramo": "continente"
     },
     {
       "n": 3,
-      "desc": "Avance Montaje 50% — Continente",
-      "fecha_pm": "POR DEFINIR",
+      "desc": "Avance montaje de estructuras 50% completada",
+      "fecha_pm": "2026-07-20",
+      "fecha_doc": "2026-07-26",
       "meta_pct": 50,
       "tipo": "montaje",
       "tramo": "continente"
     },
     {
       "n": 4,
-      "desc": "Término Montaje 100% — Continente",
-      "fecha_pm": "POR DEFINIR",
+      "desc": "Término montaje de estructuras 100%",
+      "fecha_pm": "2026-08-19",
+      "fecha_doc": "2026-08-24",
       "meta_pct": 100,
       "tipo": "montaje",
+      "tramo": "continente"
+    },
+    {
+      "n": 5,
+      "desc": "Avance tendido de conductor 50% completado",
+      "fecha_pm": "2026-08-16",
+      "fecha_doc": "2026-08-21",
+      "meta_pct": 50,
+      "tipo": "tendido",
+      "tramo": "continente"
+    },
+    {
+      "n": 6,
+      "desc": "Término tendido de conductor 100%",
+      "fecha_pm": "2026-09-27",
+      "fecha_doc": "2026-10-02",
+      "meta_pct": 100,
+      "tipo": "tendido",
+      "tramo": "continente"
+    },
+    {
+      "n": 7,
+      "desc": "Avance tendido OPGW 50% completado",
+      "fecha_pm": "2026-09-16",
+      "fecha_doc": "2026-09-21",
+      "meta_pct": 50,
+      "tipo": "opgw",
+      "tramo": "continente"
+    },
+    {
+      "n": 8,
+      "desc": "Término tendido OPGW 100%",
+      "fecha_pm": "2026-10-05",
+      "fecha_doc": "2026-10-10",
+      "meta_pct": 100,
+      "tipo": "opgw",
+      "tramo": "continente"
+    },
+    {
+      "n": 9,
+      "desc": "Puentes, empalmes OPGW 100%",
+      "fecha_pm": "2026-10-17",
+      "fecha_doc": "2026-10-20",
+      "meta_pct": 100,
+      "tipo": "terminaciones",
+      "tramo": "continente"
+    },
+    {
+      "n": 10,
+      "desc": "Pruebas",
+      "fecha_pm": "2026-10-20",
+      "fecha_doc": "2026-10-20",
+      "meta_pct": 100,
+      "tipo": "pruebas",
+      "tramo": "continente"
+    },
+    {
+      "n": 11,
+      "desc": "Carpetas TOP y Cierre Punch List",
+      "fecha_pm": null,
+      "fecha_doc": "2026-11-21",
+      "meta_pct": 100,
+      "tipo": "cierre",
       "tramo": "continente"
     }
   ]
@@ -1077,6 +1144,7 @@ let searchQuery = '';
 let openPartida = null;
 let protoSubView = 'torre';
 let db = null, dbReady = false;
+let suppressHistory = false;
 
 // ── FIREBASE ──────────────────────────────────────────────────
 function initFirebase() {
@@ -1085,7 +1153,7 @@ function initFirebase() {
     try { localStorage.removeItem(k); } catch {}
   });
   // Forzar reset si es la primera vez que se abre esta versión del archivo
-  const APP_VERSION = 'v8-avance-08-06';
+  const APP_VERSION = 'v9-hitos-continente-nav';
   if (localStorage.getItem('app_version') !== APP_VERSION) {
     ['torres_v6','excel_imported_v6','torres_v7','excel_imported_v7'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
     localStorage.setItem('app_version', APP_VERSION);
@@ -1486,8 +1554,36 @@ function closeModal() { document.getElementById('modal-overlay').classList.remov
 function closeModalOutside(e) { if (e.target.id==='modal-overlay') closeModal(); }
 
 // ── NAVEGACIÓN ────────────────────────────────────────────────
+function getNavState() {
+  return {view:currentView, torre:currentTorreId, hito:hitoSector, mapa:mapaSector, lista:listaSector};
+}
+function pushNavState() {
+  if (suppressHistory || !window.history || !history.pushState) return;
+  try { history.pushState(getNavState(), '', window.location.pathname + window.location.search); } catch(e) {}
+}
+function replaceNavState() {
+  if (!window.history || !history.replaceState) return;
+  try { history.replaceState(getNavState(), '', window.location.pathname + window.location.search); } catch(e) {}
+}
+function applyNavState(st) {
+  if (!st) return;
+  suppressHistory = true;
+  currentView = st.view || 'dashboard';
+  currentTorreId = st.torre || null;
+  hitoSector = st.hito || null;
+  mapaSector = st.mapa || null;
+  listaSector = st.lista || null;
+  openPartida = null;
+  goView(currentView);
+  suppressHistory = false;
+}
+window.addEventListener('popstate', e => {
+  if (e.state) applyNavState(e.state);
+});
+
 function goView(v) {
   currentView = v; openPartida = null;
+  if (v !== 'detalle') currentTorreId = null;
   // Actualizar tabs móvil
   document.querySelectorAll('.tab').forEach((b,i) => {
     b.classList.toggle('active', ['dashboard','mapa','lista','protocolos','hitos','config'][i]===v);
@@ -1507,6 +1603,7 @@ function goView(v) {
     sidebar.style.pointerEvents = v==='detalle' ? 'none' : 'auto';
   }
   renderCurrentView();
+  pushNavState();
 }
 function goDetalle(id) {
   currentTorreId=id; currentView='detalle'; openPartida=null;
@@ -1518,8 +1615,10 @@ function goDetalle(id) {
     if (btn) btn.classList.remove('active');
   });
   renderCurrentView();
+  pushNavState();
 }
 function goBack() {
+  if (window.history && history.length > 1) { history.back(); return; }
   currentTorreId=null; openPartida=null;
   const sidebar = document.getElementById('sidebar');
   if (sidebar) { sidebar.style.opacity='1'; sidebar.style.pointerEvents='auto'; }
@@ -1528,17 +1627,20 @@ function goBack() {
 function setMapaSector(sector) {
   mapaSector = sector;
   renderCurrentView();
+  pushNavState();
 }
 function setListaSector(sector) {
   listaSector = sector;
   filtroSector = null; filtroEstado = null; filtroTramo = null;
   searchQuery = '';
   renderCurrentView();
+  pushNavState();
 }
 
 function setHitoSector(sector) {
   hitoSector = sector;
   renderCurrentView();
+  pushNavState();
 }
 
 function goListaFiltrada(estado) {
@@ -3988,7 +4090,10 @@ window.addEventListener('load', () => {
   // IMPORTANTE: cargar primero la base embebida del Excel 08-06.
   // Así la app muestra avance de inmediato, aunque Firebase esté vacío, lento o bloqueado en la vista previa.
   loadFromLS();
+  suppressHistory = true;
   goView('dashboard');
+  suppressHistory = false;
+  replaceNavState();
 
   // Luego se conecta Firebase para sincronizar futuras ediciones/fotos sin dejar el dashboard en 0%.
   initFirebase();
