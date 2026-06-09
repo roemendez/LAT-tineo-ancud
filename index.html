@@ -346,6 +346,7 @@ div[style*="color:#f43f5e"], span[style*="color:#f43f5e"]{color:#e11d48!importan
       <button class="tab active"  onclick="goView('dashboard')">📊 Dashboard</button>
       <button class="tab"         onclick="goView('mapa')">🗺️ Mapa</button>
       <button class="tab"         onclick="goView('lista')">📋 Torres</button>
+      <button class="tab"         onclick="goView('vanos')">🧵 Vanos</button>
       <button class="tab"         onclick="goView('protocolos')">📄 Protos</button>
       <button class="tab"         onclick="goView('hitos')">🚨 Hitos</button>
       <button class="tab"         onclick="goView('config')">⚙️ Config</button>
@@ -383,6 +384,9 @@ div[style*="color:#f43f5e"], span[style*="color:#f43f5e"]{color:#e11d48!importan
       </button>
       <button class="sidebar-btn" id="sb-lista" onclick="goView('lista')">
         <span class="sb-icon">📋</span> Lista de Torres
+      </button>
+      <button class="sidebar-btn" id="sb-vanos" onclick="goView('vanos')">
+        <span class="sb-icon">🧵</span> Vanos de Tendido
       </button>
       <button class="sidebar-btn" id="sb-protocolos" onclick="goView('protocolos')">
         <span class="sb-icon">📄</span> Protocolos
@@ -1134,6 +1138,7 @@ function buildTorresMap() {
 let avances = {};
 let currentView = 'dashboard';
 let currentTorreId = null;
+let currentVanoId = null;
 let filtroSector = null;
 let filtroEstado = null;
 let filtroTramo = null;
@@ -1153,7 +1158,7 @@ function initFirebase() {
     try { localStorage.removeItem(k); } catch {}
   });
   // Forzar reset si es la primera vez que se abre esta versión del archivo
-  const APP_VERSION = 'v9-hitos-continente-nav';
+  const APP_VERSION = 'v10-vanos-tendido';
   if (localStorage.getItem('app_version') !== APP_VERSION) {
     ['torres_v6','excel_imported_v6','torres_v7','excel_imported_v7'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
     localStorage.setItem('app_version', APP_VERSION);
@@ -1555,7 +1560,7 @@ function closeModalOutside(e) { if (e.target.id==='modal-overlay') closeModal();
 
 // ── NAVEGACIÓN ────────────────────────────────────────────────
 function getNavState() {
-  return {view:currentView, torre:currentTorreId, hito:hitoSector, mapa:mapaSector, lista:listaSector};
+  return {view:currentView, torre:currentTorreId, vano:currentVanoId, hito:hitoSector, mapa:mapaSector, lista:listaSector};
 }
 function pushNavState() {
   if (suppressHistory || !window.history || !history.pushState) return;
@@ -1570,6 +1575,7 @@ function applyNavState(st) {
   suppressHistory = true;
   currentView = st.view || 'dashboard';
   currentTorreId = st.torre || null;
+  currentVanoId = st.vano || null;
   hitoSector = st.hito || null;
   mapaSector = st.mapa || null;
   listaSector = st.lista || null;
@@ -1584,12 +1590,13 @@ window.addEventListener('popstate', e => {
 function goView(v) {
   currentView = v; openPartida = null;
   if (v !== 'detalle') currentTorreId = null;
+  if (v !== 'vanoDetalle') currentVanoId = null;
   // Actualizar tabs móvil
   document.querySelectorAll('.tab').forEach((b,i) => {
-    b.classList.toggle('active', ['dashboard','mapa','lista','protocolos','hitos','config'][i]===v);
+    b.classList.toggle('active', ['dashboard','mapa','lista','vanos','protocolos','hitos','config'][i]===v);
   });
   // Actualizar sidebar desktop
-  ['dashboard','mapa','lista','protocolos','hitos','config'].forEach(name => {
+  ['dashboard','mapa','lista','vanos','protocolos','hitos','config'].forEach(name => {
     const btn = document.getElementById('sb-'+name);
     if (btn) btn.classList.toggle('active', name===v);
   });
@@ -1599,8 +1606,8 @@ function goView(v) {
   // En desktop: ocultar sidebar cuando se está en detalle
   const sidebar = document.getElementById('sidebar');
   if (sidebar && sidebar.style.display !== 'none') {
-    sidebar.style.opacity = v==='detalle' ? '0.4' : '1';
-    sidebar.style.pointerEvents = v==='detalle' ? 'none' : 'auto';
+    sidebar.style.opacity = (v==='detalle'||v==='vanoDetalle') ? '0.4' : '1';
+    sidebar.style.pointerEvents = (v==='detalle'||v==='vanoDetalle') ? 'none' : 'auto';
   }
   renderCurrentView();
   pushNavState();
@@ -1610,13 +1617,25 @@ function goDetalle(id) {
   document.getElementById('main-tabs').classList.add('hidden');
   document.getElementById('lista-filters').classList.add('hidden');
   // En desktop actualizar sidebar active state
-  ['dashboard','mapa','lista','protocolos','hitos','config'].forEach(name => {
+  ['dashboard','mapa','lista','vanos','protocolos','hitos','config'].forEach(name => {
     const btn = document.getElementById('sb-'+name);
     if (btn) btn.classList.remove('active');
   });
   renderCurrentView();
   pushNavState();
 }
+function goVanoDetalle(id) {
+  currentVanoId=id; currentView='vanoDetalle'; currentTorreId=null; openPartida=null;
+  document.getElementById('main-tabs').classList.add('hidden');
+  document.getElementById('lista-filters').classList.add('hidden');
+  ['dashboard','mapa','lista','vanos','protocolos','hitos','config'].forEach(name => {
+    const btn = document.getElementById('sb-'+name);
+    if (btn) btn.classList.remove('active');
+  });
+  renderCurrentView();
+  pushNavState();
+}
+
 function goBack() {
   if (window.history && history.length > 1) { history.back(); return; }
   currentTorreId=null; openPartida=null;
@@ -1695,10 +1714,120 @@ function renderCurrentView() {
   if (currentView==='dashboard')   c.innerHTML = renderDashboard();
   else if (currentView==='mapa')   c.innerHTML = renderMapa();
   else if (currentView==='lista')  c.innerHTML = renderLista();
+  else if (currentView==='vanos') c.innerHTML = renderVanos();
+  else if (currentView==='vanoDetalle' && currentVanoId) c.innerHTML = renderVanoDetalle(currentVanoId);
   else if (currentView==='protocolos') c.innerHTML = renderProtocolos();
   else if (currentView==='hitos')  c.innerHTML = renderHitos();
   else if (currentView==='config') c.innerHTML = renderConfig();
   else if (currentView==='detalle' && currentTorreId) c.innerHTML = renderDetalle(currentTorreId);
+}
+
+
+// ── VANOS DE TENDIDO ─────────────────────────────────────────
+const VANOS_TENDIDO = [
+  {id:'15-24', desde:'15', hasta:'24', nombre:'Vano 15–24'},
+  {id:'24-29', desde:'24', hasta:'29', nombre:'Vano 24–29'},
+  {id:'29-32', desde:'29', hasta:'32', nombre:'Vano 29–32'},
+  {id:'32-36', desde:'32', hasta:'36', nombre:'Vano 32–36'},
+  {id:'36-41', desde:'36', hasta:'41', nombre:'Vano 36–41'},
+  {id:'181-188', desde:'181', hasta:'188', nombre:'Vano 181–188'},
+  {id:'188-196', desde:'188', hasta:'196', nombre:'Vano 188–196'},
+  {id:'196-203', desde:'196', hasta:'203', nombre:'Vano 196–203'},
+  {id:'216-220', desde:'216', hasta:'220', nombre:'Vano 216–220'},
+  {id:'220-227', desde:'220', hasta:'227', nombre:'Vano 220–227'},
+  {id:'227-236', desde:'227', hasta:'236', nombre:'Vano 227–236'},
+  {id:'236-241', desde:'236', hasta:'241', nombre:'Vano 236–241'},
+  {id:'241-ML', desde:'241', hasta:'245', nombre:'Vano 241–ML'}
+];
+function getVanoTorres(vano) {
+  const a=parseFloat(vano.desde), b=parseFloat(vano.hasta);
+  return TORRES.filter(t=>{ const n=parseFloat(t.id); return !isNaN(n) && n>=a && n<=b; })
+    .sort((x,y)=>parseFloat(x.id)-parseFloat(y.id));
+}
+function calcVano(vano) {
+  const torres = getVanoTorres(vano);
+  const total = torres.length || 1;
+  let fndSum=0, mntSum=0, globalSum=0, fndOk=0, mntOk=0, restricciones=0, configuradas=0;
+  torres.forEach(t=>{
+    const av=avances[t.id]||{};
+    if (av._fnd) configuradas++;
+    const f=av._fnd?calcFnd(av):0, m=av._fnd?calcMnt(av):0, g=av._fnd?calcGlobal(av):0;
+    fndSum+=f; mntSum+=m; globalSum+=g;
+    if (f>=0.999) fndOk++;
+    if (m>=0.999) mntOk++;
+    if (isImpedimento(av)) restricciones++;
+  });
+  const fndPct=pct(fndSum/total), mntPct=pct(mntSum/total), globalPct=pct(globalSum/total);
+  let estado='Sin iniciar', color='#64748b';
+  if (restricciones>0) { estado='Con restricción'; color='#e11d48'; }
+  else if (mntOk===torres.length && torres.length>0) { estado='Montaje terminado'; color='#059669'; }
+  else if (mntSum>0) { estado='Montaje en ejecución'; color='#f59e0b'; }
+  else if (fndOk===torres.length && torres.length>0) { estado='Listo para montaje'; color='#0891b2'; }
+  else if (fndSum>0) { estado='Fundaciones en ejecución'; color='#2563eb'; }
+  return {torres,total,configuradas,fndPct,mntPct,globalPct,fndOk,mntOk,restricciones,estado,color};
+}
+function renderVanos() {
+  const cards = VANOS_TENDIDO.map(v=>{
+    const r=calcVano(v);
+    const tramo = parseFloat(v.desde)>=181 ? 'Isla' : 'Continente';
+    return `<div onclick="goVanoDetalle('${v.id}')" style="background:#fff;border:1px solid #dbe3ef;border-left:5px solid ${r.color};border-radius:14px;padding:14px 16px;cursor:pointer;box-shadow:0 1px 3px rgba(15,23,42,.06)">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+        <div><div style="font-size:17px;font-weight:900;color:#0f172a">${v.nombre}</div><div style="font-size:11px;color:#64748b;margin-top:2px">${tramo} · ${r.total} torres involucradas</div></div>
+        <div style="text-align:right"><div style="font-size:22px;font-weight:900;color:${r.color}">${r.globalPct}%</div><div style="font-size:10px;color:${r.color};font-weight:800">${r.estado}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px">
+        <div style="font-size:11px;color:#64748b">Fundaciones<br><b style="color:#0f172a">${r.fndPct}%</b></div>
+        <div style="font-size:11px;color:#64748b">Montaje<br><b style="color:#0f172a">${r.mntPct}%</b></div>
+        <div style="font-size:11px;color:#64748b">Restricciones<br><b style="color:${r.restricciones?'#e11d48':'#0f172a'}">${r.restricciones}</b></div>
+      </div>
+      <div class="bar-wrap" style="height:8px;margin-top:10px;background:#e8edf5"><div class="bar-fill" style="width:${r.globalPct}%;background:${r.color};height:100%"></div></div>
+    </div>`;
+  }).join('');
+  return `<div style="padding-bottom:40px">
+    <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div><div style="font-size:20px;font-weight:900;color:#0f172a">Vanos de Tendido</div><div style="font-size:12px;color:#64748b;margin-top:3px">Vanos reales definidos por ingeniería. Haz clic en un vano para revisar el estado de sus torres.</div></div>
+        <div style="font-size:12px;color:#64748b;background:#f8fafc;border:1px solid #dbe3ef;border-radius:10px;padding:8px 12px">${VANOS_TENDIDO.length} vanos registrados</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">${cards}</div>
+  </div>`;
+}
+function renderVanoDetalle(id) {
+  const vano = VANOS_TENDIDO.find(v=>v.id===id) || VANOS_TENDIDO[0];
+  const r = calcVano(vano);
+  const rows = r.torres.map(t=>{
+    const av=avances[t.id]||{};
+    const f=av._fnd?calcFnd(av):0, m=av._fnd?calcMnt(av):0, g=av._fnd?calcGlobal(av):0;
+    const si=statusInfo(av);
+    return `<tr onclick="goDetalle('${t.id}')" style="cursor:pointer;border-bottom:1px solid #e2e8f0">
+      <td style="padding:10px;font-weight:900;color:#0f172a">T${t.id}</td>
+      <td style="padding:10px;color:#64748b">${t.tipo}<br><span style="font-size:10px">${t.modelo||'—'}</span></td>
+      <td style="padding:10px"><span style="font-weight:900;color:#0891b2">${pct(f)}%</span></td>
+      <td style="padding:10px"><span style="font-weight:900;color:#16a34a">${pct(m)}%</span></td>
+      <td style="padding:10px"><span style="font-weight:900;color:#f59e0b">${pct(g)}%</span></td>
+      <td style="padding:10px"><span style="font-size:10px;font-weight:800;color:${si.c};background:${si.c}22;border-radius:6px;padding:3px 8px">${si.label}</span></td>
+      <td style="padding:10px;color:${isImpedimento(av)?'#e11d48':'#64748b'};font-weight:800">${isImpedimento(av)?'Sí':'No'}</td>
+    </tr>`;
+  }).join('');
+  return `<div style="padding-bottom:40px">
+    <button class="back-btn" onclick="goBack()">← Volver</button>
+    <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:20px">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+        <div><div style="font-size:22px;font-weight:900;color:#0f172a">${vano.nombre}</div><div style="font-size:12px;color:#64748b;margin-top:2px">Torres ${vano.desde} a ${vano.id.endsWith('ML')?'ML':vano.hasta} · ${r.total} torres involucradas</div></div>
+        <div style="text-align:right"><div style="font-size:28px;font-weight:900;color:${r.color}">${r.globalPct}%</div><div style="font-size:11px;color:${r.color};font-weight:900">${r.estado}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px">
+        <div class="kpi"><div class="kpi-val" style="color:#0891b2">${r.fndPct}%</div><div class="kpi-label">Fundaciones</div><div class="kpi-sub">${r.fndOk}/${r.total} terminadas</div></div>
+        <div class="kpi"><div class="kpi-val" style="color:#16a34a">${r.mntPct}%</div><div class="kpi-label">Montaje</div><div class="kpi-sub">${r.mntOk}/${r.total} terminadas</div></div>
+        <div class="kpi"><div class="kpi-val" style="color:#e11d48">${r.restricciones}</div><div class="kpi-label">Restricciones</div><div class="kpi-sub">Torres con impedimento</div></div>
+      </div>
+    </div>
+    <div class="card" style="border:1px solid #dbe3ef;padding:0;overflow:hidden">
+      <div style="padding:14px 16px;border-bottom:1px solid #e2e8f0;font-size:15px;font-weight:900;color:#0f172a">Estado de torres del vano</div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead style="background:#f8fafc;color:#64748b;text-align:left"><tr><th style="padding:10px">Torre</th><th style="padding:10px">Tipo</th><th style="padding:10px">Fnd.</th><th style="padding:10px">Montaje</th><th style="padding:10px">Global</th><th style="padding:10px">Estado</th><th style="padding:10px">Restr.</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>
+  </div>`;
 }
 
 
