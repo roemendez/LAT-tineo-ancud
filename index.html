@@ -2418,7 +2418,7 @@ function renderDashboard() {
   let protoObs=0;
 
   let oc_fndEnProceso=0, oc_fndLista=0, oc_mallaPend=0, oc_listaParaMontaje=0;
-  let mnt_sinIniciar=0, mnt_prearmado=0, mnt_montajeListo=0, mnt_terminada=0;
+  let mnt_sinIniciar=0, mnt_prearmado=0, mnt_prearmadoListo=0, mnt_montajeProceso=0, mnt_montajeListo=0, mnt_terminada=0;
 
   TORRES.forEach(t => {
     const av = avances[t.id]||{};
@@ -2452,7 +2452,9 @@ function renderDashboard() {
       const giroOK  = (av.giro_aplome_torque||0) >= 0.999;
       if      (montajeEstr >= 0.999 && giroOK && mallaOK) mnt_terminada++;
       else if (montajeEstr >= 0.999)                       mnt_montajeListo++;
-      else if (montajeEstr > 0 || prearmado > 0)           mnt_prearmado++; // en proceso (prearmado o montaje parcial)
+      else if (montajeEstr > 0)                            mnt_montajeProceso++; // montaje estructura iniciado pero no completo
+      else if (prearmado >= 0.999)                         mnt_prearmadoListo++; // prearmado 100%, esperando inicio de montaje
+      else if (prearmado > 0)                              mnt_prearmado++;      // prearmado parcial, aún en proceso
       else                                                 mnt_sinIniciar++;
     }
   });
@@ -2464,7 +2466,7 @@ function renderDashboard() {
   const pctFnd = total ? sumaFnd/total : 0;
   const pctMnt = total ? sumaMnt/total : 0;
   const oc_total = oc_fndEnProceso + oc_fndLista + oc_mallaPend + oc_listaParaMontaje;
-  const mnt_total = mnt_sinIniciar + mnt_prearmado + mnt_montajeListo + mnt_terminada;
+  const mnt_total = mnt_sinIniciar + mnt_prearmado + mnt_prearmadoListo + mnt_montajeProceso + mnt_montajeListo + mnt_terminada;
 
   const gaugeCard = (value, label, sub, color, onclick='') => {
     const v = Math.max(0, Math.min(1, value||0));
@@ -2564,13 +2566,15 @@ function renderDashboard() {
         <div style="font-size:15px;font-weight:900;color:#0f172a">Montaje Estructuras</div>
         <div style="font-size:11px;color:#64748b">${mnt_total} torres en scope</div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:8px;margin-bottom:10px">
         ${kpiCard(mnt_sinIniciar,'Sin iniciar','OO.CC. lista', '#64748b','mntSinIniciar')}
         ${kpiCard(mnt_prearmado,'Prearmado','en proceso', '#2563eb','mntPrearmado')}
-        ${kpiCard(mnt_montajeListo,'Montaje','falta giro/aplome', '#f59e0b','mntMontaje')}
+        ${kpiCard(mnt_prearmadoListo,'Prearmado','listo, espera montaje', '#0ea5e9','mntPrearmadoListo')}
+        ${kpiCard(mnt_montajeProceso,'Montaje','en proceso', '#6366f1','mntMontajeProceso')}
+        ${kpiCard(mnt_montajeListo,'Listo','falta giro/aplome', '#f59e0b','mntMontaje')}
         ${kpiCard(mnt_terminada,'Terminadas','giro/aplome ✓', '#059669','terminada')}
       </div>
-      ${mnt_total>0?`<div style="font-size:10px;color:#64748b;margin-bottom:4px">Distribución del scope de montaje</div><div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px;background:#e8edf5"><div style="flex:${mnt_sinIniciar};background:#64748b"></div><div style="flex:${mnt_prearmado};background:#2563eb"></div><div style="flex:${mnt_montajeListo};background:#f59e0b"></div><div style="flex:${mnt_terminada};background:#059669"></div></div>`:''}
+      ${mnt_total>0?`<div style="font-size:10px;color:#64748b;margin-bottom:4px">Distribución del scope de montaje</div><div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px;background:#e8edf5"><div style="flex:${mnt_sinIniciar};background:#64748b"></div><div style="flex:${mnt_prearmado};background:#2563eb"></div><div style="flex:${mnt_prearmadoListo};background:#0ea5e9"></div><div style="flex:${mnt_montajeProceso};background:#6366f1"></div><div style="flex:${mnt_montajeListo};background:#f59e0b"></div><div style="flex:${mnt_terminada};background:#059669"></div></div>`:''}
     </div>
 
     <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:18px">
@@ -2775,7 +2779,9 @@ function renderLista() {
         if (filtroEstado==='ooccCivil'    && !isOOCCCivil(av))    return false;
         // montaje sub-states
         if (filtroEstado==='mntSinIniciar' && !(isOOCCCivil(av) && (av.prearmado||0)<0.001 && (av.montaje_estructura||0)<0.001)) return false;
-        if (filtroEstado==='mntPrearmado'  && !((av.prearmado||0)>0 && (av.montaje_estructura||0)<0.999 && isOOCCCivil(av))) return false;
+        if (filtroEstado==='mntPrearmado'  && !((av.prearmado||0)>0 && (av.prearmado||0)<0.999 && (av.montaje_estructura||0)<0.001 && isOOCCCivil(av))) return false;
+        if (filtroEstado==='mntPrearmadoListo' && !((av.prearmado||0)>=0.999 && (av.montaje_estructura||0)<0.001 && isOOCCCivil(av))) return false;
+        if (filtroEstado==='mntMontajeProceso' && !((av.montaje_estructura||0)>0 && (av.montaje_estructura||0)<0.999 && isOOCCCivil(av))) return false;
         if (filtroEstado==='mntMontaje'    && !(est==='montajeListo')) return false;
         if (filtroEstado==='proceso'      && est!=='proceso')      return false;
         if (filtroEstado==='sinInicio'    && est!=='sinInicio')    return false;
