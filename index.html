@@ -1406,6 +1406,17 @@ function isOOCCCivil(av) {
   return calcFnd(av) >= 0.999;
 }
 
+// isEnScopeMontaje: una torre entra al tracking de "Montaje Estructuras" si su
+// fundación ya está 100% lista, O si ya tiene cualquier avance real de montaje
+// cargado (prearmado/montaje estructura/giro-aplome). Esto evita que torres con
+// fundación en 95-99% (ej. falta solo Relleno y Compactado) queden invisibles
+// en el dashboard pese a tener montaje ya en curso.
+function isEnScopeMontaje(av) {
+  if (!av._fnd || av._fnd==='na') return false;
+  if (calcFnd(av) >= 0.999) return true;
+  return (av.prearmado||0) > 0 || (av.montaje_estructura||0) > 0 || (av.giro_aplome_torque||0) > 0;
+}
+
 // isGeneralesOK: todas las etapas generales (incluyendo malla tierra) = 100%
 function isGeneralesOK(av) {
   if (!av._fnd) return false;
@@ -2447,7 +2458,7 @@ function renderDashboard() {
     else if (fnd >= 0.999 && malla >= 0.999 && !genOK) oc_mallaPend++;
     else if (fnd >= 0.999 && genOK)                    oc_listaParaMontaje++;
 
-    if (fnd >= 0.999 && av._fnd && av._fnd !== 'na') {
+    if (isEnScopeMontaje(av)) {
       const mallaOK = (av.malla_tierra||0) >= 0.999;
       const giroOK  = (av.giro_aplome_torque||0) >= 0.999;
       if      (montajeEstr >= 0.999 && giroOK && mallaOK) mnt_terminada++;
@@ -2778,10 +2789,10 @@ function renderLista() {
         // ooccCivil = todas con fnd 100% (incluye montajeListo, oocc, ooccCivil)
         if (filtroEstado==='ooccCivil'    && !isOOCCCivil(av))    return false;
         // montaje sub-states
-        if (filtroEstado==='mntSinIniciar' && !(isOOCCCivil(av) && (av.prearmado||0)<0.001 && (av.montaje_estructura||0)<0.001)) return false;
-        if (filtroEstado==='mntPrearmado'  && !((av.prearmado||0)>0 && (av.prearmado||0)<0.999 && (av.montaje_estructura||0)<0.001 && isOOCCCivil(av))) return false;
-        if (filtroEstado==='mntPrearmadoListo' && !((av.prearmado||0)>=0.999 && (av.montaje_estructura||0)<0.001 && isOOCCCivil(av))) return false;
-        if (filtroEstado==='mntMontajeProceso' && !((av.montaje_estructura||0)>0 && (av.montaje_estructura||0)<0.999 && isOOCCCivil(av))) return false;
+        if (filtroEstado==='mntSinIniciar' && !(isEnScopeMontaje(av) && (av.prearmado||0)<0.001 && (av.montaje_estructura||0)<0.001)) return false;
+        if (filtroEstado==='mntPrearmado'  && !((av.prearmado||0)>0 && (av.prearmado||0)<0.999 && (av.montaje_estructura||0)<0.001 && isEnScopeMontaje(av))) return false;
+        if (filtroEstado==='mntPrearmadoListo' && !((av.prearmado||0)>=0.999 && (av.montaje_estructura||0)<0.001 && isEnScopeMontaje(av))) return false;
+        if (filtroEstado==='mntMontajeProceso' && !((av.montaje_estructura||0)>0 && (av.montaje_estructura||0)<0.999 && isEnScopeMontaje(av))) return false;
         if (filtroEstado==='mntMontaje'    && !(est==='montajeListo')) return false;
         if (filtroEstado==='proceso'      && est!=='proceso')      return false;
         if (filtroEstado==='sinInicio'    && est!=='sinInicio')    return false;
