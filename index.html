@@ -389,12 +389,11 @@ div[style*="color:#f43f5e"], span[style*="color:#f43f5e"]{color:#e11d48!importan
       <button class="sidebar-btn" id="sb-vanos" onclick="goView('vanos')">
         <span class="sb-icon">🧵</span> Vanos de Tendido
       </button>
+      <button class="sidebar-btn" id="sb-matriz" onclick="goView('matriz')">
+        <span class="sb-icon">📊</span> Matriz
+      </button>
       <button class="sidebar-btn" id="sb-protocolos" onclick="goView('protocolos')">
         <span class="sb-icon">📄</span> Protocolos
-      </button>
-      <div class="sidebar-divider"></div>
-      <button class="sidebar-btn" id="sb-hitos" onclick="goView('hitos')">
-        <span class="sb-icon">🚨</span> Hitos Multables
       </button>
       <div class="sidebar-divider"></div>
       <button class="sidebar-btn" id="sb-hitos" onclick="goView('hitos')">
@@ -1594,10 +1593,10 @@ function goView(v) {
   if (v !== 'vanoDetalle') currentVanoId = null;
   // Actualizar tabs móvil
   document.querySelectorAll('.tab').forEach((b,i) => {
-    b.classList.toggle('active', ['dashboard','mapa','lista','vanos','protocolos','hitos','config'][i]===v);
+    b.classList.toggle('active', ['dashboard','mapa','lista','vanos','matriz','protocolos','hitos','config'][i]===v);
   });
   // Actualizar sidebar desktop
-  ['dashboard','mapa','lista','vanos','protocolos','hitos','config'].forEach(name => {
+  ['dashboard','mapa','lista','vanos','matriz','protocolos','hitos','config'].forEach(name => {
     const btn = document.getElementById('sb-'+name);
     if (btn) btn.classList.toggle('active', name===v);
   });
@@ -1618,7 +1617,7 @@ function goDetalle(id) {
   document.getElementById('main-tabs').classList.add('hidden');
   document.getElementById('lista-filters').classList.add('hidden');
   // En desktop actualizar sidebar active state
-  ['dashboard','mapa','lista','vanos','protocolos','hitos','config'].forEach(name => {
+  ['dashboard','mapa','lista','vanos','matriz','protocolos','hitos','config'].forEach(name => {
     const btn = document.getElementById('sb-'+name);
     if (btn) btn.classList.remove('active');
   });
@@ -1629,7 +1628,7 @@ function goVanoDetalle(id) {
   currentVanoId=id; currentView='vanoDetalle'; currentTorreId=null; openPartida=null;
   document.getElementById('main-tabs').classList.add('hidden');
   document.getElementById('lista-filters').classList.add('hidden');
-  ['dashboard','mapa','lista','vanos','protocolos','hitos','config'].forEach(name => {
+  ['dashboard','mapa','lista','vanos','matriz','protocolos','hitos','config'].forEach(name => {
     const btn = document.getElementById('sb-'+name);
     if (btn) btn.classList.remove('active');
   });
@@ -2453,7 +2452,7 @@ function renderDashboard() {
       const giroOK  = (av.giro_aplome_torque||0) >= 0.999;
       if      (montajeEstr >= 0.999 && giroOK && mallaOK) mnt_terminada++;
       else if (montajeEstr >= 0.999)                       mnt_montajeListo++;
-      else if (prearmado > 0)                              mnt_prearmado++;
+      else if (montajeEstr > 0 || prearmado > 0)           mnt_prearmado++; // en proceso (prearmado o montaje parcial)
       else                                                 mnt_sinIniciar++;
     }
   });
@@ -4145,7 +4144,7 @@ function actMntHtml(e, av) {
   const col='#10b981';
   return `<div class="act-row">
     <div class="act-top" style="margin-bottom:${isNA?'0':'6px'}">
-      <span style="flex:1;font-size:12px;color:${isNA?'#334155':num>=1?'#f8fafc':num>0?'#fcd34d':'#94a3b8'};${isNA?'text-decoration:line-through':''}">${e.label} <span style="font-size:9px;color:#475569">×${e.peso}</span></span>
+      <span class="act-label" style="flex:1;font-size:12px;color:${isNA?'#334155':num>=1?'#10b981':num>0?'#d97706':'#94a3b8'};${isNA?'text-decoration:line-through':''}">${e.label} <span style="font-size:9px;color:#475569">×${e.peso}</span></span>
       ${isNA?'<span style="font-size:9px;font-weight:700;color:#475569;background:#1e293b;border-radius:4px;padding:2px 5px">N/A</span>':badge(num)}
       <button class="act-na-btn" style="border:1px solid ${isNA?'#f59e0b':'#334155'};background:${isNA?'#431407':'transparent'};color:${isNA?'#f59e0b':'#475569'}"
         onclick="toggleNA_mnt('${key}')">N/A</button>
