@@ -977,7 +977,6 @@ const TORRES_BASE = [
   {id:"113",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
   {id:"114",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
   {id:"115",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"116",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
   {id:"117",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
   {id:"118",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
   {id:"119",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
@@ -1034,6 +1033,7 @@ const TORRES_BASE = [
   {id:"170",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
   {id:"171",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
   {id:"172",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
+  {id:"172A",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
   {id:"173",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
   {id:"174",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
   {id:"175",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
@@ -1066,7 +1066,6 @@ const TORRES_BASE = [
   {id:"202",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
   {id:"203",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
   {id:"204",tipo:"Anclaje",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"205",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
   {id:"206",tipo:"Anclaje",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
   {id:"207",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
   {id:"208",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
@@ -1120,6 +1119,13 @@ const TORRES_BASE = [
 let TORRES = [];
 let TORRES_MAP = {};
 let torresManuales = [];
+
+// IDs que se muestran en mapa/lista pero NO cuentan en los totales/porcentajes
+// del dashboard "Avance General del Proyecto" (no son torres de línea ni especiales).
+const TORRES_FUERA_DE_TOTALES = ['SE_TINEO'];
+function getTorresParaTotales() {
+  return TORRES.filter(t => !TORRES_FUERA_DE_TOTALES.includes(String(t.id)));
+}
 
 function buildTorresMap() {
   TORRES = [...TORRES_BASE, ...torresManuales].sort((a,b) => {
@@ -1404,6 +1410,17 @@ function calcGlobal(av) {
 function isOOCCCivil(av) {
   if (!av._fnd || av._fnd==='na') return false;
   return calcFnd(av) >= 0.999;
+}
+
+// faseIcon: indica en qué fase de trabajo está la torre actualmente
+// (reemplaza el ícono de ancla/ola que solo indicaba tipo Anclaje/Suspensión y generaba confusión)
+function faseIcon(av, cfg) {
+  if (!cfg) return '⚙️';
+  if (isTerminada(av))     return '✓';
+  if (isMontajeListo(av))  return 'G/A';
+  if (isEnScopeMontaje(av)) return 'MNT';
+  if (calcGlobal(av) > 0)  return 'FND';
+  return '—';
 }
 
 // isEnScopeMontaje: una torre entra al tracking de "Montaje Estructuras" si su
@@ -1701,9 +1718,10 @@ function togglePartida(id) { openPartida=openPartida===id?null:id; renderCurrent
 function setProtoSubView(v) { protoSubView=v; renderCurrentView(); }
 
 function updateGlobalPct() {
-  const total = TORRES.length;
+  const torresTotales = getTorresParaTotales();
+  const total = torresTotales.length;
   if (total === 0) return;
-  const suma = TORRES.reduce((s,t) => {
+  const suma = torresTotales.reduce((s,t) => {
     const av = avances[t.id]||{};
     return s + (av._fnd ? calcGlobal(av) : 0);
   }, 0);
@@ -1716,7 +1734,7 @@ function updateGlobalPct() {
   // Actualizar info de torres en sidebar
   const conf = TORRES.filter(t=>(avances[t.id]||{})._fnd).length;
   const infoEl = document.getElementById('sidebar-torres-info');
-  if (infoEl) infoEl.textContent = `Línea 254 + especiales 6`;
+  if (infoEl) infoEl.textContent = `Línea 245 + especiales 6`;
 }
 
 function renderCurrentView() {
@@ -2419,19 +2437,25 @@ function fotoBadgeHtml(torreId) {
 
 // ── DASHBOARD ────────────────────────────────────────────────
 function renderDashboard() {
-  const total = TORRES.length;
-  const TORRES_LINEA_TOTAL = 254;
+  const torresTotales = getTorresParaTotales();
+  const total = torresTotales.length;
+  const TORRES_LINEA_TOTAL = 245;
   const TORRES_ESPECIALES_TOTAL = 6;
   const ESPECIALES_IDS = ['1A','1B','2C','3C','4A','4B'];
   let sinConfig=0, impedimento=0, sumaGlobal=0, sumaFnd=0, sumaMnt=0;
   let islaTotal=0, contTotal=0, islaAv=0, contAv=0;
   let lineaAv=0, especialesAv=0;
   let protoObs=0;
+  let lastUpdated=null;
+  Object.values(avances||{}).forEach(av => {
+    if (av && av._updated && (!lastUpdated || av._updated > lastUpdated)) lastUpdated = av._updated;
+  });
+  const lastUpdatedLabel = lastUpdated ? formatDate(lastUpdated) : 'sin ediciones aún (base 08-06)';
 
   let oc_fndEnProceso=0, oc_fndLista=0, oc_mallaPend=0, oc_listaParaMontaje=0;
   let mnt_sinIniciar=0, mnt_prearmado=0, mnt_prearmadoListo=0, mnt_montajeProceso=0, mnt_montajeListo=0, mnt_terminada=0;
 
-  TORRES.forEach(t => {
+  torresTotales.forEach(t => {
     const av = avances[t.id]||{};
     if (!av._fnd) { sinConfig++; return; }
     const g = calcGlobal(av), fnd = calcFnd(av), mnt = calcMnt(av);
@@ -2541,7 +2565,7 @@ function renderDashboard() {
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:12px;flex-wrap:wrap">
         <div>
           <div style="font-size:18px;font-weight:900;color:#0f172a">Avance General del Proyecto</div>
-          <div style="font-size:12px;color:#64748b;margin-top:2px">Línea principal: 254 torres · Torres especiales: 6 · Última base: 08-06</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px">Línea principal: 245 torres · Torres especiales: 6 · Última actualización: ${lastUpdatedLabel}</div>
         </div>
         <div onclick="goListaFiltrada('impedimento')" style="background:${impedimento>0?'#fff1f2':'#f8fafc'};border:1px solid ${impedimento>0?'#fecdd3':'#dbe3ef'};border-radius:12px;padding:10px 14px;text-align:center;cursor:pointer;min-width:130px">
           <div style="font-size:24px;font-weight:900;color:#e11d48">${impedimento}</div>
@@ -2551,7 +2575,7 @@ function renderDashboard() {
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:stretch">
         ${gaugeCard(pctGlobal,'Avance total ponderado','Línea + torres especiales','#f59e0b')}
-        ${gaugeCard(pctLinea,'Avance línea principal','254 torres de línea','#2563eb')}
+        ${gaugeCard(pctLinea,'Avance línea principal','245 torres de línea','#2563eb')}
         ${gaugeCard(pctEspeciales,'Avance torres especiales','6 torres especiales / cruce','#7c3aed')}
         ${gaugeCard(pctFnd,'Fundaciones','Anclas + hormigón + tradicional','#0891b2')}
         ${gaugeCard(pctMnt,'Montaje estructuras','Prearmado, montaje, giro y aplome','#16a34a')}
@@ -2726,7 +2750,7 @@ function renderMapa() {
     return `<button class="torre-btn" style="background:${bg};border:${cfg?'none':'1px dashed #334155'};opacity:${opacity}" onclick="goDetalle('${t.id}')">
       <span style="font-size:8px;font-weight:700;color:${isA?'#fcd34d':'#bae6fd'}">${t.id}</span>
       <span style="font-size:9px;color:rgba(255,255,255,.6)">${imp?'🔴':cfg?pct(g)+'%':'—'}</span>
-      <span style="font-size:7px;color:rgba(255,255,255,.3)">${!cfg?'⚙️':isA?'⚓':'〰'}</span>
+      <span style="font-size:7px;color:rgba(255,255,255,.45);letter-spacing:.3px">${imp?'':faseIcon(av,cfg)}</span>
     </button>`;
   }).join('');
 
@@ -2757,6 +2781,7 @@ function renderMapa() {
       ${[['#1e293b','Sin config','1px dashed #334155'],['#7f1d1d','Impedimento'],['#b45309','25–49%'],['#1d4ed8','50–74%'],['#0f766e','75–99%'],['#0e7490','OO.CC. ✓'],['#15803d','100%']].map(l=>`
       <div class="leg-item"><div class="leg-dot" style="background:${l[0]};border:${l[2]||'none'}"></div><span class="leg-label">${l[1]}</span></div>`).join('')}
     </div>
+    <div style="font-size:9px;color:#475569;margin-top:6px">Texto bajo el %: <b style="color:#64748b">FND</b> en fundación · <b style="color:#64748b">MNT</b> en montaje · <b style="color:#64748b">G/A</b> falta giro/aplome · <b style="color:#64748b">✓</b> terminada</div>
   </div>`;
 }
 
