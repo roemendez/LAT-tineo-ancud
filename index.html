@@ -347,6 +347,7 @@ div[style*="color:#f43f5e"], span[style*="color:#f43f5e"]{color:#e11d48!importan
       <button class="tab"         onclick="goView('mapa')">🗺️ Mapa</button>
       <button class="tab"         onclick="goView('lista')">📋 Torres</button>
       <button class="tab"         onclick="goView('vanos')">🧵 Vanos</button>
+      <button class="tab"         onclick="goView('porSector')">📐 Por Sector</button>
       <button class="tab"         onclick="goView('matriz')">📊 Matriz</button>
       <button class="tab"         onclick="goView('protocolos')">📄 Protos</button>
       <button class="tab"         onclick="goView('hitos')">🚨 Hitos</button>
@@ -388,6 +389,9 @@ div[style*="color:#f43f5e"], span[style*="color:#f43f5e"]{color:#e11d48!importan
       </button>
       <button class="sidebar-btn" id="sb-vanos" onclick="goView('vanos')">
         <span class="sb-icon">🧵</span> Vanos de Tendido
+      </button>
+      <button class="sidebar-btn" id="sb-porSector" onclick="goView('porSector')">
+        <span class="sb-icon">📐</span> Avance por Sector
       </button>
       <button class="sidebar-btn" id="sb-matriz" onclick="goView('matriz')">
         <span class="sb-icon">📊</span> Matriz
@@ -1113,7 +1117,7 @@ const TORRES_BASE = [
   {id:"3C",tipo:"Suspensión",modelo:"—",sector:"Isla Sur",contratista:"CSTC",estado_tramo:"activo",tramo:"cruce"},
   {id:"4A",tipo:"Anclaje",modelo:"—",sector:"Isla Sur",contratista:"CSTC",estado_tramo:"activo",tramo:"cruce"},
   {id:"4B",tipo:"Anclaje",modelo:"—",sector:"Isla Sur",contratista:"CSTC",estado_tramo:"activo",tramo:"cruce"},
-  {id:"SE_TINEO",tipo:"Ampliación",modelo:"SE Tineo",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",tramo:"subestacion"}
+  {id:"SE_TINEO",tipo:"Por definir",modelo:"SE Tineo",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",tramo:"subestacion"}
 ];
 
 let TORRES = [];
@@ -1150,6 +1154,7 @@ let filtroEstado = null;
 let filtroTramo = null;
 let hitoSector  = null; // null=resumen | 'isla'|'continente'|'cruce'
 let mapaSector  = null; // null=cards | 'cont1'|'cont2'|'cont3'|'isla'|'cruce'|'se'
+let porSectorTramo = null; // null=cards | mismo set de keys que mapaSector, para la vista "Por Sector"
 let listaSector = null; // null=cards | 'cont1'|'cont2'|'cont3'|'isla'|'cruce'
 let searchQuery = '';
 let openPartida = null;
@@ -1180,10 +1185,13 @@ function initFirebase() {
       const raw = snap.val() || {};
       const data = purgarHuerfanos(mergeConBaseExcel(raw));
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
-      // Si Firebase está vacío, sembrar la base de avance para que otros usuarios vean lo mismo en línea.
-      if (!snap.exists() || Object.keys(raw).length === 0) {
-        try { db.ref('avances').set(data); } catch(e) {}
-      }
+      // (Desactivado) Antes, si Firebase estaba vacío, se sembraba automáticamente
+      // con la base del 08-06. Se desactiva porque el proyecto ya tiene avance real
+      // cargado y esto era un riesgo: si el nodo se borra por error, repoblaría con
+      // datos de prueba viejos en vez de quedar vacío (más seguro y visible).
+      // if (!snap.exists() || Object.keys(raw).length === 0) {
+      //   try { db.ref('avances').set(data); } catch(e) {}
+      // }
       // Solo actualizar datos de torres que NO estamos editando ahora mismo
       // para no interrumpir sliders activos
       if (currentView === 'detalle' && currentTorreId) {
@@ -1434,6 +1442,59 @@ function isEnScopeMontaje(av) {
   return (av.prearmado||0) > 0 || (av.montaje_estructura||0) > 0 || (av.giro_aplome_torque||0) > 0;
 }
 
+// calcOCMontajeStats: clasifica un conjunto de torres en los buckets de
+// "Obras Civiles" y "Montaje Estructuras". Compartida entre el Dashboard
+// (con todas las torres) y la vista "Por Sector" (con las torres de un tramo).
+// kpiCard: tarjeta clicable usada en Obras Civiles / Montaje Estructuras.
+// Si se pasa 'sector', el clic filtra la Lista a ese tramo + ese estado;
+// si no, filtra la Lista globalmente (comportamiento original del Dashboard).
+function kpiCard(val, label, sub, color, filtro, sector) {
+  const onclickAttr = sector ? `goListaFiltradaSector('${filtro}','${sector}')` : `goListaFiltrada('${filtro}')`;
+  return `<div class="kpi" style="border:1px solid ${color}44;cursor:pointer;text-align:center" onclick="${onclickAttr}">
+    <div style="font-size:24px;font-weight:900;color:${color}">${val}</div>
+    <div style="font-size:11px;font-weight:800;color:${color};margin-top:2px">${label}</div>
+    ${sub?`<div style="font-size:9px;color:#64748b;margin-top:1px">${sub}</div>`:''}
+  </div>`;
+}
+
+function calcOCMontajeStats(torres) {
+  let oc_fndEnProceso=0, oc_fndLista=0, oc_mallaPend=0, oc_listaParaMontaje=0;
+  let mnt_sinIniciar=0, mnt_prearmado=0, mnt_prearmadoListo=0, mnt_montajeProceso=0, mnt_montajeListo=0, mnt_terminada=0;
+  torres.forEach(t => {
+    const av = avances[t.id]||{};
+    if (!av._fnd) return;
+    const fnd = calcFnd(av);
+    const malla = av.malla_tierra || 0;
+    const genOK = isGeneralesOK(av);
+    const prearmado = av.prearmado || 0;
+    const montajeEstr = av.montaje_estructura || 0;
+    const hasFndActivity = av._fnd && av._fnd!=='na' && (
+      (av._fnd==='ancla'       && (av.trazado_anclas_p1||0) > 0) ||
+      (av._fnd==='hormigon'    && (av.trazado_h_p1||0) > 0)      ||
+      (av._fnd==='tradicional' && (av.trad_replanteo_p1||0) > 0)
+    );
+    if      (hasFndActivity && fnd < 0.999)            oc_fndEnProceso++;
+    else if (fnd >= 0.999 && malla < 0.999)            oc_fndLista++;
+    else if (fnd >= 0.999 && malla >= 0.999 && !genOK) oc_mallaPend++;
+    else if (fnd >= 0.999 && genOK)                    oc_listaParaMontaje++;
+
+    if (isEnScopeMontaje(av)) {
+      const mallaOK = (av.malla_tierra||0) >= 0.999;
+      const giroOK  = (av.giro_aplome_torque||0) >= 0.999;
+      if      (montajeEstr >= 0.999 && giroOK && mallaOK) mnt_terminada++;
+      else if (montajeEstr >= 0.999)                       mnt_montajeListo++;
+      else if (montajeEstr > 0)                            mnt_montajeProceso++;
+      else if (prearmado >= 0.999)                         mnt_prearmadoListo++;
+      else if (prearmado > 0)                              mnt_prearmado++;
+      else                                                 mnt_sinIniciar++;
+    }
+  });
+  const oc_total = oc_fndEnProceso + oc_fndLista + oc_mallaPend + oc_listaParaMontaje;
+  const mnt_total = mnt_sinIniciar + mnt_prearmado + mnt_prearmadoListo + mnt_montajeProceso + mnt_montajeListo + mnt_terminada;
+  return {oc_fndEnProceso, oc_fndLista, oc_mallaPend, oc_listaParaMontaje, oc_total,
+          mnt_sinIniciar, mnt_prearmado, mnt_prearmadoListo, mnt_montajeProceso, mnt_montajeListo, mnt_terminada, mnt_total};
+}
+
 // isGeneralesOK: todas las etapas generales (incluyendo malla tierra) = 100%
 function isGeneralesOK(av) {
   if (!av._fnd) return false;
@@ -1588,7 +1649,7 @@ function closeModalOutside(e) { if (e.target.id==='modal-overlay') closeModal();
 
 // ── NAVEGACIÓN ────────────────────────────────────────────────
 function getNavState() {
-  return {view:currentView, torre:currentTorreId, vano:currentVanoId, hito:hitoSector, mapa:mapaSector, lista:listaSector};
+  return {view:currentView, torre:currentTorreId, vano:currentVanoId, hito:hitoSector, mapa:mapaSector, lista:listaSector, porSector:porSectorTramo};
 }
 function pushNavState() {
   if (suppressHistory || !window.history || !history.pushState) return;
@@ -1607,6 +1668,7 @@ function applyNavState(st) {
   hitoSector = st.hito || null;
   mapaSector = st.mapa || null;
   listaSector = st.lista || null;
+  porSectorTramo = st.porSector || null;
   openPartida = null;
   goView(currentView);
   suppressHistory = false;
@@ -1621,10 +1683,10 @@ function goView(v) {
   if (v !== 'vanoDetalle') currentVanoId = null;
   // Actualizar tabs móvil
   document.querySelectorAll('.tab').forEach((b,i) => {
-    b.classList.toggle('active', ['dashboard','mapa','lista','vanos','matriz','protocolos','hitos','config'][i]===v);
+    b.classList.toggle('active', ['dashboard','mapa','lista','vanos','porSector','matriz','protocolos','hitos','config'][i]===v);
   });
   // Actualizar sidebar desktop
-  ['dashboard','mapa','lista','vanos','matriz','protocolos','hitos','config'].forEach(name => {
+  ['dashboard','mapa','lista','vanos','porSector','matriz','protocolos','hitos','config'].forEach(name => {
     const btn = document.getElementById('sb-'+name);
     if (btn) btn.classList.toggle('active', name===v);
   });
@@ -1645,7 +1707,7 @@ function goDetalle(id) {
   document.getElementById('main-tabs').classList.add('hidden');
   document.getElementById('lista-filters').classList.add('hidden');
   // En desktop actualizar sidebar active state
-  ['dashboard','mapa','lista','vanos','matriz','protocolos','hitos','config'].forEach(name => {
+  ['dashboard','mapa','lista','vanos','porSector','matriz','protocolos','hitos','config'].forEach(name => {
     const btn = document.getElementById('sb-'+name);
     if (btn) btn.classList.remove('active');
   });
@@ -1656,7 +1718,7 @@ function goVanoDetalle(id) {
   currentVanoId=id; currentView='vanoDetalle'; currentTorreId=null; openPartida=null;
   document.getElementById('main-tabs').classList.add('hidden');
   document.getElementById('lista-filters').classList.add('hidden');
-  ['dashboard','mapa','lista','vanos','matriz','protocolos','hitos','config'].forEach(name => {
+  ['dashboard','mapa','lista','vanos','porSector','matriz','protocolos','hitos','config'].forEach(name => {
     const btn = document.getElementById('sb-'+name);
     if (btn) btn.classList.remove('active');
   });
@@ -1676,6 +1738,11 @@ function setMapaSector(sector) {
   renderCurrentView();
   pushNavState();
 }
+function setPorSectorTramo(sector) {
+  porSectorTramo = sector;
+  renderCurrentView();
+  pushNavState();
+}
 function setListaSector(sector) {
   listaSector = sector;
   filtroSector = null; filtroEstado = null; filtroTramo = null;
@@ -1692,6 +1759,12 @@ function setHitoSector(sector) {
 
 function goListaFiltrada(estado) {
   filtroEstado=estado; filtroSector=null; searchQuery='';
+  goView('lista');
+}
+function goListaFiltradaSector(estado, sector) {
+  filtroEstado = estado;
+  listaSector = sector;
+  filtroSector = null; filtroTramo = null; searchQuery = '';
   goView('lista');
 }
 function goListaSector(sector) {
@@ -1744,6 +1817,7 @@ function renderCurrentView() {
   else if (currentView==='mapa')   c.innerHTML = renderMapa();
   else if (currentView==='lista')  c.innerHTML = renderLista();
   else if (currentView==='vanos') c.innerHTML = renderVanos();
+  else if (currentView==='porSector') c.innerHTML = renderPorSector();
   else if (currentView==='matriz') c.innerHTML = renderMatriz();
   else if (currentView==='vanoDetalle' && currentVanoId) c.innerHTML = renderVanoDetalle(currentVanoId);
   else if (currentView==='protocolos') c.innerHTML = renderProtocolos();
@@ -2452,9 +2526,6 @@ function renderDashboard() {
   });
   const lastUpdatedLabel = lastUpdated ? formatDate(lastUpdated) : 'sin ediciones aún (base 08-06)';
 
-  let oc_fndEnProceso=0, oc_fndLista=0, oc_mallaPend=0, oc_listaParaMontaje=0;
-  let mnt_sinIniciar=0, mnt_prearmado=0, mnt_prearmadoListo=0, mnt_montajeProceso=0, mnt_montajeListo=0, mnt_terminada=0;
-
   torresTotales.forEach(t => {
     const av = avances[t.id]||{};
     if (!av._fnd) { sinConfig++; return; }
@@ -2466,33 +2537,10 @@ function renderDashboard() {
     if (t.sector==='Isla') { islaTotal++; islaAv += g; }
     if (t.sector==='Continente') { contTotal++; contAv += g; }
     getTorreProtocolos(t.id).forEach(p => { if(p.estado==='observado') protoObs++; });
-
-    const malla = av.malla_tierra || 0;
-    const genOK = isGeneralesOK(av);
-    const prearmado = av.prearmado || 0;
-    const montajeEstr = av.montaje_estructura || 0;
-    const giroAplome  = av.giro_aplome_torque || 0;
-    const hasFndActivity = av._fnd && av._fnd!=='na' && (
-      (av._fnd==='ancla'       && (av.trazado_anclas_p1||0) > 0) ||
-      (av._fnd==='hormigon'    && (av.trazado_h_p1||0) > 0)      ||
-      (av._fnd==='tradicional' && (av.trad_replanteo_p1||0) > 0)
-    );
-    if      (hasFndActivity && fnd < 0.999)            oc_fndEnProceso++;
-    else if (fnd >= 0.999 && malla < 0.999)            oc_fndLista++;
-    else if (fnd >= 0.999 && malla >= 0.999 && !genOK) oc_mallaPend++;
-    else if (fnd >= 0.999 && genOK)                    oc_listaParaMontaje++;
-
-    if (isEnScopeMontaje(av)) {
-      const mallaOK = (av.malla_tierra||0) >= 0.999;
-      const giroOK  = (av.giro_aplome_torque||0) >= 0.999;
-      if      (montajeEstr >= 0.999 && giroOK && mallaOK) mnt_terminada++;
-      else if (montajeEstr >= 0.999)                       mnt_montajeListo++;
-      else if (montajeEstr > 0)                            mnt_montajeProceso++; // montaje estructura iniciado pero no completo
-      else if (prearmado >= 0.999)                         mnt_prearmadoListo++; // prearmado 100%, esperando inicio de montaje
-      else if (prearmado > 0)                              mnt_prearmado++;      // prearmado parcial, aún en proceso
-      else                                                 mnt_sinIniciar++;
-    }
   });
+  const ocMnt = calcOCMontajeStats(torresTotales);
+  const {oc_fndEnProceso, oc_fndLista, oc_mallaPend, oc_listaParaMontaje, oc_total,
+         mnt_sinIniciar, mnt_prearmado, mnt_prearmadoListo, mnt_montajeProceso, mnt_montajeListo, mnt_terminada, mnt_total} = ocMnt;
 
   const configured = total - sinConfig;
   const pctGlobal = total ? sumaGlobal/total : 0;
@@ -2500,8 +2548,6 @@ function renderDashboard() {
   const pctEspeciales = TORRES_ESPECIALES_TOTAL ? especialesAv/TORRES_ESPECIALES_TOTAL : 0;
   const pctFnd = total ? sumaFnd/total : 0;
   const pctMnt = total ? sumaMnt/total : 0;
-  const oc_total = oc_fndEnProceso + oc_fndLista + oc_mallaPend + oc_listaParaMontaje;
-  const mnt_total = mnt_sinIniciar + mnt_prearmado + mnt_prearmadoListo + mnt_montajeProceso + mnt_montajeListo + mnt_terminada;
 
   const gaugeCard = (value, label, sub, color, onclick='') => {
     const v = Math.max(0, Math.min(1, value||0));
@@ -2519,12 +2565,7 @@ function renderDashboard() {
     </div>`;
   };
 
-  const kpiCard = (val, label, sub, color, filtro) =>
-    `<div class="kpi" style="border:1px solid ${color}44;cursor:pointer;text-align:center" onclick="goListaFiltrada('${filtro}')">
-      <div style="font-size:24px;font-weight:900;color:${color}">${val}</div>
-      <div style="font-size:11px;font-weight:800;color:${color};margin-top:2px">${label}</div>
-      ${sub?`<div style="font-size:9px;color:#64748b;margin-top:1px">${sub}</div>`:''}
-    </div>`;
+  // kpiCard ahora es una función global (ver más arriba), reutilizada también por renderPorSector
 
   const nextHitos = [];
   ['continente','isla','cruce'].forEach(key => {
@@ -2580,6 +2621,11 @@ function renderDashboard() {
         ${gaugeCard(pctFnd,'Fundaciones','Anclas + hormigón + tradicional','#0891b2')}
         ${gaugeCard(pctMnt,'Montaje estructuras','Prearmado, montaje, giro y aplome','#16a34a')}
       </div>
+    </div>
+
+    <div class="card" onclick="goView('porSector')" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <div><span style="font-size:13px;font-weight:900;color:#0f172a">📐 Avance por Sector / Tramo</span><span style="font-size:11px;color:#64748b;margin-left:8px">Obras Civiles y Montaje desglosados por T1–14, T15–41, T42–180, Isla, Cruce y SE</span></div>
+      <span style="font-size:12px;font-weight:800;color:#f59e0b;white-space:nowrap">Ver detalle →</span>
     </div>
 
     <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:18px">
@@ -2785,10 +2831,105 @@ function renderMapa() {
   </div>`;
 }
 
+// ── POR SECTOR ───────────────────────────────────────────────
+// Nivel 1: tarjetas resumen por tramo (mismo patrón visual que Vanos).
+// Nivel 2: el mismo desglose de "Obras Civiles" / "Montaje Estructuras"
+// que el Dashboard, pero calculado solo con las torres de ese tramo.
+function renderPorSector() {
+  const groups = getSectorGroups();
+
+  if (!porSectorTramo) {
+    const cards = groups.map(s => {
+      const stats = getTorresSectorStats(s.torres);
+      return `<div onclick="setPorSectorTramo('${s.key}')" style="background:#fff;border:1px solid #dbe3ef;border-left:5px solid ${s.color};border-radius:14px;padding:14px 16px;cursor:pointer;box-shadow:0 1px 3px rgba(15,23,42,.06)">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+          <div><div style="font-size:16px;font-weight:900;color:#0f172a">${s.title}</div><div style="font-size:11px;color:#64748b;margin-top:2px">${s.subtitle} · ${s.sub2}</div></div>
+          <div style="text-align:right"><div style="font-size:22px;font-weight:900;color:${s.color}">${stats.avancePct}%</div>${stats.impedimento>0?`<div style="font-size:10px;color:#e11d48;font-weight:800">🔴 ${stats.impedimento} impedimento${stats.impedimento>1?'s':''}</div>`:''}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px">
+          <div style="font-size:11px;color:#64748b">Torres<br><b style="color:#0f172a">${s.torres.length}</b></div>
+          <div style="font-size:11px;color:#64748b">Terminadas<br><b style="color:#0f172a">${stats.terminadas}</b></div>
+          <div style="font-size:11px;color:#64748b">En proceso<br><b style="color:#0f172a">${stats.proceso + stats.montajeEnProceso}</b></div>
+        </div>
+        <div class="bar-wrap" style="height:8px;margin-top:10px;background:#e8edf5"><div class="bar-fill" style="width:${stats.avancePct}%;background:${s.color};height:100%"></div></div>
+      </div>`;
+    }).join('');
+    return `<div style="padding-bottom:40px">
+      <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div><div style="font-size:20px;font-weight:900;color:#0f172a">Avance por Sector / Tramo</div><div style="font-size:12px;color:#64748b;margin-top:3px">Haz clic en un tramo para ver el detalle de Obras Civiles y Montaje de Estructuras.</div></div>
+          <div style="font-size:12px;color:#64748b;background:#f8fafc;border:1px solid #dbe3ef;border-radius:10px;padding:8px 12px">${groups.length} tramos</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">${cards}</div>
+    </div>`;
+  }
+
+  // Nivel 2: detalle de un tramo
+  const sector = groups.find(s => s.key === porSectorTramo);
+  if (!sector) { porSectorTramo = null; return renderPorSector(); }
+  const stats = getTorresSectorStats(sector.torres);
+  const ocMnt = calcOCMontajeStats(sector.torres);
+
+  return `<div style="padding-bottom:40px">
+    <button onclick="setPorSectorTramo(null)"
+      style="background:none;border:none;color:#f59e0b;font-size:13px;cursor:pointer;margin-bottom:14px;padding:0">
+      ← Volver a tramos
+    </button>
+    <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:18px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:4px;height:36px;background:${sector.color};border-radius:2px;flex-shrink:0"></div>
+        <div>
+          <div style="font-size:17px;font-weight:900;color:#0f172a">${sector.title}</div>
+          <div style="font-size:12px;color:#64748b">${sector.subtitle} · <span style="color:${sector.color}">${sector.sub2}</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:#64748b">
+        <span>✅ ${stats.terminadas} terminadas</span>
+        <span>⚡ ${stats.proceso} en proceso</span>
+        <span>🔴 ${stats.impedimento} impedimentos</span>
+        <span>📊 ${stats.avancePct}% avance</span>
+        <span>📌 ${sector.torres.length} torres</span>
+      </div>
+    </div>
+
+    <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:900;color:#0f172a">Obras Civiles</div>
+        <div style="font-size:11px;color:#64748b">${ocMnt.oc_total} torres con actividad</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+        ${kpiCard(ocMnt.oc_fndEnProceso,'Fnd. en proceso','', '#2563eb','proceso',sector.key)}
+        ${kpiCard(ocMnt.oc_fndLista,'Fnd. 100%','falta malla', '#0891b2','ooccCivil',sector.key)}
+        ${kpiCard(ocMnt.oc_mallaPend,'Malla lista','pend. otras gen.', '#7c3aed','ooccCivil',sector.key)}
+        ${kpiCard(ocMnt.oc_listaParaMontaje,'Lista montaje','OO.CC. completas', '#f59e0b','oocc',sector.key)}
+      </div>
+      ${ocMnt.oc_total>0?`<div style="font-size:10px;color:#64748b;margin-bottom:4px">Distribución sobre torres con actividad civil</div><div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px;background:#e8edf5"><div style="flex:${ocMnt.oc_fndEnProceso};background:#2563eb"></div><div style="flex:${ocMnt.oc_fndLista};background:#0891b2"></div><div style="flex:${ocMnt.oc_mallaPend};background:#7c3aed"></div><div style="flex:${ocMnt.oc_listaParaMontaje};background:#f59e0b"></div></div>`:'<div style="font-size:11px;color:#94a3b8">Sin actividad civil registrada en este tramo.</div>'}
+    </div>
+
+    <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:900;color:#0f172a">Montaje Estructuras</div>
+        <div style="font-size:11px;color:#64748b">${ocMnt.mnt_total} torres en scope</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:8px;margin-bottom:10px">
+        ${kpiCard(ocMnt.mnt_sinIniciar,'Sin iniciar','OO.CC. lista', '#64748b','mntSinIniciar',sector.key)}
+        ${kpiCard(ocMnt.mnt_prearmado,'Prearmado','en proceso', '#2563eb','mntPrearmado',sector.key)}
+        ${kpiCard(ocMnt.mnt_prearmadoListo,'Prearmado','listo, espera montaje', '#0ea5e9','mntPrearmadoListo',sector.key)}
+        ${kpiCard(ocMnt.mnt_montajeProceso,'Montaje','en proceso', '#6366f1','mntMontajeProceso',sector.key)}
+        ${kpiCard(ocMnt.mnt_montajeListo,'Listo','falta giro/aplome', '#f59e0b','mntMontaje',sector.key)}
+        ${kpiCard(ocMnt.mnt_terminada,'Terminadas','giro/aplome ✓', '#059669','terminada',sector.key)}
+      </div>
+      ${ocMnt.mnt_total>0?`<div style="font-size:10px;color:#64748b;margin-bottom:4px">Distribución del scope de montaje</div><div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px;background:#e8edf5"><div style="flex:${ocMnt.mnt_sinIniciar};background:#64748b"></div><div style="flex:${ocMnt.mnt_prearmado};background:#2563eb"></div><div style="flex:${ocMnt.mnt_prearmadoListo};background:#0ea5e9"></div><div style="flex:${ocMnt.mnt_montajeProceso};background:#6366f1"></div><div style="flex:${ocMnt.mnt_montajeListo};background:#f59e0b"></div><div style="flex:${ocMnt.mnt_terminada};background:#059669"></div></div>`:'<div style="font-size:11px;color:#94a3b8">Ninguna torre de este tramo está aún en scope de montaje.</div>'}
+    </div>
+  </div>`;
+}
+
 // ── LISTA ─────────────────────────────────────────────────────
 function renderLista() {
-  // Level 1: show sector cards if no sector selected and no search active
-  if (!listaSector && !searchQuery && !filtroEstado) return renderSectorCards('lista');
+  // Antes pedía elegir un sector primero; ahora muestra todas las torres de
+  // inmediato. listaSector sigue funcionando como filtro opcional (vía clic
+  // desde Mapa, Por Sector, o el dashboard), pero ya no es obligatorio.
 
   // Level 2: show torres of selected sector with filters
   const groups = getSectorGroups();
