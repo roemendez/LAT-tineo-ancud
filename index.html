@@ -866,251 +866,251 @@ function protoPataKey(eid,p){ return 'proto_'+eid+'_p'+p; }
 // ── LISTA DE TORRES ───────────────────────────────────────────
 // Comienza vacía; se puebla con TORRES_BASE + torres manuales
 const TORRES_BASE = [
-  {id:"1",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"2",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"3",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"4",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"5",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"6",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"7",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"8",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"9",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"10",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"11",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"12",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"13",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"14",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"15",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"16",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"17",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"18",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"19",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"20",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"21",tipo:"Suspensión",modelo:"50AD7",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"22",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"23",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"24",tipo:"Anclaje",modelo:"50AD70",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"25",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"26",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"27",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"28",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"29",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"30",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"31",tipo:"Anclaje",modelo:"50AD70",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"32",tipo:"Anclaje",modelo:"50AD70",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"33",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"34",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"35",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"36",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"37",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"38",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"39",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"40",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"41",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"42",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"43",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"44",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"45",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"46",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"47",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"48",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"49",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"50",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"51",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"52",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"53",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"54",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"55",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"56",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"57",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"58",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"59",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"60",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"61",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"62",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"63",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"64",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"65",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"66",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"67",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"68",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"69",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"70",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"71",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"72",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"73",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"74",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"75",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"76",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"77",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"78",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"79",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"80",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"81",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"82",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"83",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"84",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"85",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"86",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"87",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"88",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"89",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"90",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"91",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"92",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"93",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"94",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"95",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"96",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"97",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"98",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"99",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"100",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"101",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"102",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"103",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"104",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"105",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"106",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"107",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"108",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"109",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"110",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"111",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"112",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"113",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"114",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"115",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"117",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"118",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"119",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"120",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"121",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"122",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"123",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"124",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"125",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"126",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"127",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"128",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"129",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"130",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"131",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"132",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"133",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"134",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"135",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"136",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"137",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"138",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"139",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"140",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"141",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"142",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"143",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"144",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"145",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"146",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"147",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"148",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"149",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"150",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"151",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"152",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"153",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"154",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"155",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"156",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"157",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"158",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"159",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"160",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"161",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"162",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"163",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"164",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"165",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"166",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"167",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"168",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"169",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"170",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"171",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"172",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"172A",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"173",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"174",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"175",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"176",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"177",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"178",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"179",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"180",tipo:"Suspensión",modelo:"—",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente"},
-  {id:"181",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"182",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"183",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"184",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"185",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"186",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"187",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"188",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"189",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"190",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"191",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"192",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"193",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"194",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"195",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"196",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"197",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"198",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"199",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"200",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"201",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"202",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"203",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"204",tipo:"Anclaje",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"206",tipo:"Anclaje",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"207",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"208",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"209",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"210",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"211",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
+  {id:"1",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje/Remate",dist_acumulada:0.0,vano_adelante:230.2},
+  {id:"2",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:230.2,vano_adelante:375.2},
+  {id:"3",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:605.4,vano_adelante:373.6},
+  {id:"4",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje/Remate",dist_acumulada:979.0,vano_adelante:486.7},
+  {id:"5",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:1465.7,vano_adelante:360.2},
+  {id:"6",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:1825.8,vano_adelante:420.0},
+  {id:"7",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:2245.8,vano_adelante:409.8},
+  {id:"8",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:2655.6,vano_adelante:342.1},
+  {id:"9",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:2997.7,vano_adelante:316.9},
+  {id:"10",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:3314.6,vano_adelante:287.2},
+  {id:"11",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:3601.8,vano_adelante:395.3},
+  {id:"12",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:3997.1,vano_adelante:398.5},
+  {id:"13",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:4395.6,vano_adelante:488.9},
+  {id:"14",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:4884.5,vano_adelante:252.8},
+  {id:"15",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:5137.3,vano_adelante:424.1},
+  {id:"16",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:5561.4,vano_adelante:343.4},
+  {id:"17",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:5904.8,vano_adelante:444.9},
+  {id:"18",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:6349.7,vano_adelante:410.8},
+  {id:"19",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:6760.5,vano_adelante:420.5},
+  {id:"20",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:7181.1,vano_adelante:394.0},
+  {id:"21",tipo:"Suspensión",modelo:"50AD7",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:7575.0,vano_adelante:413.1},
+  {id:"22",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:7988.1,vano_adelante:413.0},
+  {id:"23",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:8401.1,vano_adelante:439.1},
+  {id:"24",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje/Remate",dist_acumulada:8840.2,vano_adelante:382.3},
+  {id:"25",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:9222.5,vano_adelante:378.3},
+  {id:"26",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:9600.8,vano_adelante:356.6},
+  {id:"27",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:9957.4,vano_adelante:322.8},
+  {id:"28",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:10280.1,vano_adelante:286.2},
+  {id:"29",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:10566.4,vano_adelante:399.2},
+  {id:"30",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:10965.5,vano_adelante:475.9},
+  {id:"31",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje/Remate",dist_acumulada:11441.5,vano_adelante:490.4},
+  {id:"32",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje/Remate",dist_acumulada:11931.8,vano_adelante:387.1},
+  {id:"33",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:12319.0,vano_adelante:367.4},
+  {id:"34",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:12686.4,vano_adelante:402.1},
+  {id:"35",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:13088.5,vano_adelante:375.6},
+  {id:"36",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:13464.1,vano_adelante:461.3},
+  {id:"37",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:13925.4,vano_adelante:438.6},
+  {id:"38",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:14363.9,vano_adelante:332.3},
+  {id:"39",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:14696.2,vano_adelante:315.2},
+  {id:"40",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:15011.5,vano_adelante:304.8},
+  {id:"41",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:15316.3,vano_adelante:348.0},
+  {id:"42",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:15664.3,vano_adelante:331.8},
+  {id:"43",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:15996.1,vano_adelante:520.2},
+  {id:"44",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:16516.3,vano_adelante:341.0},
+  {id:"45",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:16857.3,vano_adelante:306.1},
+  {id:"46",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:17163.4,vano_adelante:553.3},
+  {id:"47",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:17716.7,vano_adelante:355.2},
+  {id:"48",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:18071.8,vano_adelante:370.0},
+  {id:"49",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:18441.9,vano_adelante:295.4},
+  {id:"50",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:18737.3,vano_adelante:284.9},
+  {id:"51",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje/Remate",dist_acumulada:19022.2,vano_adelante:373.7},
+  {id:"52",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:19395.9,vano_adelante:343.4},
+  {id:"53",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:19739.3,vano_adelante:428.5},
+  {id:"54",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:20167.8,vano_adelante:436.1},
+  {id:"55",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:20603.9,vano_adelante:428.6},
+  {id:"56",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:21032.4,vano_adelante:388.6},
+  {id:"57",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:21421.0,vano_adelante:432.4},
+  {id:"58",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:21853.4,vano_adelante:461.9},
+  {id:"59",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:22315.3,vano_adelante:433.0},
+  {id:"60",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:22748.3,vano_adelante:417.0},
+  {id:"61",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:23165.3,vano_adelante:430.7},
+  {id:"62",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:23596.0,vano_adelante:401.1},
+  {id:"63",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje/Remate",dist_acumulada:23997.1,vano_adelante:305.2},
+  {id:"64",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:24302.3,vano_adelante:516.0},
+  {id:"65",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:24818.3,vano_adelante:557.0},
+  {id:"66",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:25375.3,vano_adelante:332.0},
+  {id:"67",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:25707.3,vano_adelante:418.0},
+  {id:"68",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:26125.3,vano_adelante:473.0},
+  {id:"69",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:26598.3,vano_adelante:426.0},
+  {id:"70",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:27024.3,vano_adelante:399.2},
+  {id:"71",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:27423.5,vano_adelante:342.0},
+  {id:"72",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:27765.5,vano_adelante:240.7},
+  {id:"73",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:28006.3,vano_adelante:235.7},
+  {id:"74",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:28242.0,vano_adelante:271.2},
+  {id:"75",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:28513.2,vano_adelante:368.4},
+  {id:"76",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:28881.6,vano_adelante:458.3},
+  {id:"77",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:29339.9,vano_adelante:438.0},
+  {id:"78",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:29777.9,vano_adelante:326.2},
+  {id:"79",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:30104.1,vano_adelante:318.9},
+  {id:"80",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:30422.9,vano_adelante:397.9},
+  {id:"81",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:30820.9,vano_adelante:278.0},
+  {id:"82",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:31098.9,vano_adelante:273.0},
+  {id:"83",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:31371.9,vano_adelante:295.5},
+  {id:"84",tipo:"Transposición",modelo:"T500.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Transposición",dist_acumulada:31667.4,vano_adelante:385.3},
+  {id:"85",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:32052.7,vano_adelante:418.6},
+  {id:"86",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje/Remate",dist_acumulada:32471.3,vano_adelante:422.5},
+  {id:"87",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:32893.8,vano_adelante:313.9},
+  {id:"88",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:33207.7,vano_adelante:312.2},
+  {id:"89",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:33519.9,vano_adelante:240.2},
+  {id:"90",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:33760.1,vano_adelante:412.3},
+  {id:"91",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:34172.4,vano_adelante:357.2},
+  {id:"92",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:34529.6,vano_adelante:284.5},
+  {id:"93",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:34814.1,vano_adelante:428.3},
+  {id:"94",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:35242.4,vano_adelante:354.4},
+  {id:"95",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:35596.9,vano_adelante:519.0},
+  {id:"96",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:36115.9,vano_adelante:297.1},
+  {id:"97",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:36412.9,vano_adelante:331.5},
+  {id:"98",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:36744.5,vano_adelante:543.3},
+  {id:"99",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:37287.8,vano_adelante:478.0},
+  {id:"100",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:37765.8,vano_adelante:389.5},
+  {id:"101",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:38155.3,vano_adelante:359.1},
+  {id:"102",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:38514.4,vano_adelante:389.7},
+  {id:"103",tipo:"Suspensión",modelo:"50AD7",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:38904.1,vano_adelante:551.8},
+  {id:"104",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:39455.9,vano_adelante:301.0},
+  {id:"105",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:39756.9,vano_adelante:353.7},
+  {id:"106",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:40110.6,vano_adelante:332.8},
+  {id:"107",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:40443.4,vano_adelante:403.5},
+  {id:"108",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje/Remate",dist_acumulada:40846.9,vano_adelante:327.1},
+  {id:"109",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:41174.0,vano_adelante:355.3},
+  {id:"110",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:41529.3,vano_adelante:461.6},
+  {id:"111",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:41990.9,vano_adelante:434.7},
+  {id:"112",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:42425.6,vano_adelante:408.7},
+  {id:"113",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:42834.4,vano_adelante:405.6},
+  {id:"114",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:43239.9,vano_adelante:491.8},
+  {id:"115",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:43731.7,vano_adelante:335.0},
+  {id:"117",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:44066.7,vano_adelante:577.0},
+  {id:"118",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:44643.7,vano_adelante:550.4},
+  {id:"119",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:45194.1,vano_adelante:610.1},
+  {id:"120",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:45804.2,vano_adelante:266.7},
+  {id:"121",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:46070.9,vano_adelante:314.7},
+  {id:"122",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:46385.5,vano_adelante:271.1},
+  {id:"123",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:46656.6,vano_adelante:379.1},
+  {id:"124",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:47035.7,vano_adelante:417.4},
+  {id:"125",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:47453.0,vano_adelante:406.0},
+  {id:"126",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:47859.0,vano_adelante:388.3},
+  {id:"127",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:48247.3,vano_adelante:421.2},
+  {id:"128",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:48668.5,vano_adelante:322.7},
+  {id:"129",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:48991.2,vano_adelante:571.9},
+  {id:"130",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:49563.1,vano_adelante:309.4},
+  {id:"131",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:49872.5,vano_adelante:442.3},
+  {id:"132",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:50314.8,vano_adelante:447.5},
+  {id:"133",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:50762.3,vano_adelante:420.8},
+  {id:"134",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:51183.1,vano_adelante:451.1},
+  {id:"135",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:51634.2,vano_adelante:426.7},
+  {id:"136",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:52060.9,vano_adelante:409.3},
+  {id:"137",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:52470.3,vano_adelante:433.7},
+  {id:"138",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:52904.0,vano_adelante:449.3},
+  {id:"139",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:53353.2,vano_adelante:428.3},
+  {id:"140",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:53781.5,vano_adelante:456.3},
+  {id:"141",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:54237.8,vano_adelante:436.9},
+  {id:"142",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:54674.7,vano_adelante:436.6},
+  {id:"143",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:55111.3,vano_adelante:377.5},
+  {id:"144",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:55488.8,vano_adelante:441.9},
+  {id:"145",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:55930.7,vano_adelante:385.1},
+  {id:"146",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:56315.8,vano_adelante:307.2},
+  {id:"147",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:56623.0,vano_adelante:449.7},
+  {id:"148",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:57072.7,vano_adelante:376.1},
+  {id:"149",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:57448.8,vano_adelante:388.9},
+  {id:"150",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:57837.7,vano_adelante:339.2},
+  {id:"151",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:58176.9,vano_adelante:224.4},
+  {id:"152",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:58401.3,vano_adelante:359.7},
+  {id:"153",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:58761.0,vano_adelante:338.7},
+  {id:"154",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:59099.7,vano_adelante:340.2},
+  {id:"155",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:59439.9,vano_adelante:369.9},
+  {id:"156",tipo:"Suspensión",modelo:"50AD1V",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:59809.9,vano_adelante:309.7},
+  {id:"157",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje/Remate",dist_acumulada:60119.5,vano_adelante:353.5},
+  {id:"158",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:60473.0,vano_adelante:446.9},
+  {id:"159",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:60919.9,vano_adelante:434.3},
+  {id:"160",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:61354.2,vano_adelante:455.1},
+  {id:"161",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:61809.3,vano_adelante:409.1},
+  {id:"162",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:62218.4,vano_adelante:424.2},
+  {id:"163",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:62642.6,vano_adelante:466.4},
+  {id:"164",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:63109.0,vano_adelante:417.5},
+  {id:"165",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:63526.6,vano_adelante:389.0},
+  {id:"166",tipo:"Transposición",modelo:"T500.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Transposición",dist_acumulada:63915.6,vano_adelante:400.0},
+  {id:"167",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:64315.6,vano_adelante:417.0},
+  {id:"168",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:64732.6,vano_adelante:470.2},
+  {id:"169",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:65202.8,vano_adelante:453.3},
+  {id:"170",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:65656.1,vano_adelante:438.4},
+  {id:"171",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:66094.5,vano_adelante:442.0},
+  {id:"172",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:66536.5,vano_adelante:404.4},
+  {id:"172A",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:66940.9,vano_adelante:83.0},
+  {id:"173",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:67023.8,vano_adelante:385.3},
+  {id:"174",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:67409.1,vano_adelante:427.9},
+  {id:"175",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:67837.0,vano_adelante:454.2},
+  {id:"176",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:68291.2,vano_adelante:438.6},
+  {id:"177",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Suspensión",dist_acumulada:68729.8,vano_adelante:439.2},
+  {id:"178",tipo:"Anclaje",modelo:"50AD35",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje",dist_acumulada:69169.0,vano_adelante:444.6},
+  {id:"179",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje/Remate",dist_acumulada:69613.6,vano_adelante:437.7},
+  {id:"180",tipo:"Anclaje/Remate",modelo:"50AD70",sector:"Continente",contratista:"Sin asignar",estado_tramo:"pendiente",clasificacion:"Anclaje/Remate",dist_acumulada:70051.3,vano_adelante:441.7},
+  {id:"181",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:74740.6,vano_adelante:308.6},
+  {id:"182",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:75049.2,vano_adelante:411.0},
+  {id:"183",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:75460.2,vano_adelante:449.3},
+  {id:"184",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:75909.5,vano_adelante:305.0},
+  {id:"185",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:76214.5,vano_adelante:324.0},
+  {id:"186",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:76538.5,vano_adelante:373.0},
+  {id:"187",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:76911.5,vano_adelante:374.2},
+  {id:"188",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:77285.8,vano_adelante:389.8},
+  {id:"189",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:77675.6,vano_adelante:424.5},
+  {id:"190",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:78100.1,vano_adelante:121.5},
+  {id:"191",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:78221.6,vano_adelante:493.2},
+  {id:"192",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:78714.9,vano_adelante:445.4},
+  {id:"193",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:79160.3,vano_adelante:388.2},
+  {id:"194",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:79548.5,vano_adelante:418.2},
+  {id:"195",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:79966.7,vano_adelante:377.9},
+  {id:"196",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:80344.6,vano_adelante:369.4},
+  {id:"197",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:80714.0,vano_adelante:345.5},
+  {id:"198",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:81059.5,vano_adelante:258.3},
+  {id:"199",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:81317.9,vano_adelante:404.6},
+  {id:"200",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:81722.5,vano_adelante:357.5},
+  {id:"201",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:82080.0,vano_adelante:331.2},
+  {id:"202",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:82411.2,vano_adelante:447.5},
+  {id:"203",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:82858.7,vano_adelante:261.0},
+  {id:"204",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:83119.7,vano_adelante:342.3},
+  {id:"206",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:83462.0,vano_adelante:185.1},
+  {id:"207",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:83647.1,vano_adelante:154.7},
+  {id:"208",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:83801.8,vano_adelante:181.9},
+  {id:"209",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:83983.7,vano_adelante:417.6},
+  {id:"210",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:84401.3,vano_adelante:497.4},
+  {id:"211",tipo:"Anclaje",modelo:"50AD35_H50",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:84898.7,vano_adelante:683.7},
   {id:"212",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"213",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"214",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"215",tipo:"Suspensión",modelo:"—",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"216",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"217",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"218",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"219",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"219A",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"220",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"221",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"222",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"223",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"224",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"225",tipo:"Anclaje Tradicional",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"226",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"227",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"228",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"229",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"230",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"231",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"232",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"233",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"234",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"235",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"236",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"237",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"238",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"239",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"240",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"241",tipo:"Anclaje Tradicional",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"242",tipo:"Anclaje Tradicional",modelo:"22R_4C",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"243",tipo:"Anclaje",modelo:"22A.4C",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"244",tipo:"Anclaje Tradicional",modelo:"22RD20.3",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
-  {id:"245",tipo:"Anclaje Tradicional",modelo:"22RD20.3",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo"},
+  {id:"213",tipo:"Anclaje",modelo:"50AD35_H50",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:85582.3,vano_adelante:112.7},
+  {id:"214",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:86167.6,vano_adelante:316.2},
+  {id:"215",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:86483.9,vano_adelante:188.9},
+  {id:"216",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:86672.7,vano_adelante:431.2},
+  {id:"217",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:87103.9,vano_adelante:323.4},
+  {id:"218",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:87427.3,vano_adelante:382.4},
+  {id:"219",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:87809.7,vano_adelante:310.1},
+  {id:"219A",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:88119.7,vano_adelante:278.7},
+  {id:"220",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:88398.4,vano_adelante:288.0},
+  {id:"221",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:88686.4,vano_adelante:472.8},
+  {id:"222",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:89159.3,vano_adelante:360.0},
+  {id:"223",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:89519.3,vano_adelante:284.6},
+  {id:"224",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:89803.9,vano_adelante:385.0},
+  {id:"225",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:90188.8,vano_adelante:280.4},
+  {id:"226",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:90469.2,vano_adelante:125.3},
+  {id:"227",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:90594.5,vano_adelante:435.1},
+  {id:"228",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:91029.6,vano_adelante:450.6},
+  {id:"229",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:91480.2,vano_adelante:419.4},
+  {id:"230",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:91899.6,vano_adelante:461.0},
+  {id:"231",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:92360.6,vano_adelante:382.0},
+  {id:"232",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:92742.6,vano_adelante:353.0},
+  {id:"233",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:93095.6,vano_adelante:416.0},
+  {id:"234",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:93511.6,vano_adelante:419.6},
+  {id:"235",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:93931.1,vano_adelante:265.0},
+  {id:"236",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:94196.2,vano_adelante:433.6},
+  {id:"237",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:94629.8,vano_adelante:264.4},
+  {id:"238",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:94894.2,vano_adelante:308.6},
+  {id:"239",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:95202.9,vano_adelante:215.2},
+  {id:"240",tipo:"Suspensión",modelo:"50ADV.1M",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Suspensión",dist_acumulada:95418.0,vano_adelante:329.8},
+  {id:"241",tipo:"Anclaje",modelo:"50AD35",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:95747.8,vano_adelante:96.1},
+  {id:"242",tipo:"Anclaje",modelo:"22R_4C",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:95843.9,vano_adelante:117.5},
+  {id:"243",tipo:"Anclaje",modelo:"22A.4C",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje",dist_acumulada:95961.4,vano_adelante:139.0},
+  {id:"244",tipo:"Anclaje/Remate",modelo:"22RD20.3",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje/Remate",dist_acumulada:96100.4,vano_adelante:67.9},
+  {id:"245",tipo:"Anclaje/Remate",modelo:"22RD20.3",sector:"Isla",contratista:"Globaltec",estado_tramo:"activo",clasificacion:"Anclaje/Remate",dist_acumulada:96168.3,vano_adelante:52.7},
   {id:"1A",tipo:"Anclaje",modelo:"—",sector:"Continente Norte",contratista:"CSTC",estado_tramo:"activo",tramo:"cruce"},
   {id:"1B",tipo:"Anclaje",modelo:"—",sector:"Continente Norte",contratista:"CSTC",estado_tramo:"activo",tramo:"cruce"},
   {id:"2C",tipo:"Suspensión",modelo:"—",sector:"Continente Norte",contratista:"CSTC",estado_tramo:"activo",tramo:"cruce"},
@@ -1152,6 +1152,9 @@ let currentVanoId = null;
 let filtroSector = null;
 let filtroEstado = null;
 let filtroTramo = null;
+let filtroContratista = null;   // nuevo: filtrar por contratista
+let filtroClasificacion = null; // nuevo: filtrar por Suspensión/Anclaje/etc.
+let filtroConComentario = false;// nuevo: solo torres con comentarios
 let hitoSector  = null; // null=resumen | 'isla'|'continente'|'cruce'
 let mapaSector  = null; // null=cards | 'cont1'|'cont2'|'cont3'|'isla'|'cruce'|'se'
 let porSectorTramo = null; // null=cards | mismo set de keys que mapaSector, para la vista "Por Sector"
@@ -1216,6 +1219,17 @@ function initFirebase() {
     db.ref('torres_manuales').on('value', snap => {
       torresManuales = snap.val() ? Object.values(snap.val()) : [];
       buildTorresMap(); renderCurrentView();
+    });
+    // Escuchar overrides de campos de torre (contratista, modelo, clasificacion, etc.)
+    db.ref('torre_overrides').on('value', snap => {
+      torreOverrides = snap.val() || {};
+      applyTorreOverrides();
+      renderCurrentView();
+    });
+    // Escuchar bitácora (comentarios por torre)
+    db.ref('bitacora').on('value', snap => {
+      bitacoraCache = snap.val() || {};
+      renderCurrentView();
     });
     // Escuchar pesos
     db.ref('config/pesos').on('value', snap => {
@@ -2339,8 +2353,149 @@ function loadHitoFechas() {
 }
 
 
-// ── REGISTRO FOTOGRÁFICO ──────────────────────────────────────
-// Usa Firebase Storage para almacenar fotos comprimidas
+// torreOverrides: campos editables de una torre guardados en Firebase (contratista, modelo, etc.)
+// Se fusionan sobre TORRES_MAP al cargar y al editar.
+let torreOverrides = {}; // { [torreId]: { contratista, modelo, clasificacion, sector, dist_acumulada, vano_adelante, estado_tramo, observaciones } }
+// bitacoraCache: comentarios en memoria { [torreId]: { [key]: {texto, fecha, responsable, estado, ts} } }
+let bitacoraCache = {};
+
+// ── CAMPOS EDITABLES DE TORRE ─────────────────────────────────
+function applyTorreOverrides() {
+  Object.entries(torreOverrides).forEach(([id, ov]) => {
+    if (!TORRES_MAP[id]) return;
+    Object.assign(TORRES_MAP[id], ov);
+    const t = TORRES.find(t=>t.id===id);
+    if (t) Object.assign(t, ov);
+  });
+}
+
+function saveTorreField(torreId, field, value) {
+  if (!torreOverrides[torreId]) torreOverrides[torreId] = {};
+  torreOverrides[torreId][field] = value;
+  if (TORRES_MAP[torreId]) TORRES_MAP[torreId][field] = value;
+  const t = TORRES.find(t=>t.id===torreId);
+  if (t) t[field] = value;
+  localStorage.setItem('torre_overrides', JSON.stringify(torreOverrides));
+  if (dbReady && db) db.ref('torre_overrides/'+torreId).set(torreOverrides[torreId]);
+  showToast('✅ Guardado');
+  renderCurrentView();
+}
+
+function openEditTorreField(torreId, field, currentVal, label, options) {
+  let inputHtml;
+  if (options) {
+    inputHtml = `<select id="ef-input" style="width:100%;padding:10px;border-radius:8px;background:#1e293b;color:#f8fafc;border:1px solid #334155;font-size:14px">
+      ${options.map(o=>`<option value="${o}" ${o===currentVal?'selected':''}>${o}</option>`).join('')}
+    </select>`;
+  } else {
+    inputHtml = `<input id="ef-input" value="${currentVal||''}" style="width:100%;padding:10px;border-radius:8px;background:#1e293b;color:#f8fafc;border:1px solid #334155;font-size:14px"/>`;
+  }
+  openModal('\u270F\uFE0F Editar '+label, `
+    <div style="margin-bottom:12px;font-size:12px;color:#64748b">Torre ${torreId} \u2014 ${label}</div>
+    ${inputHtml}
+    <button class="action-btn btn-primary" style="margin-top:14px" onclick="saveTorreField('${torreId}','${field}',document.getElementById('ef-input').value);closeModal()">Guardar</button>
+    <button class="action-btn btn-secondary" onclick="closeModal()">Cancelar</button>
+  `);
+}
+
+// ── BITÁCORA ─────────────────────────────────────────────────
+const BITACORA_ESTADOS = ['Normal','Observado','Atrasado','Bloqueado','Resuelto'];
+const BITACORA_COLORS = {Normal:'#10b981',Observado:'#f59e0b',Atrasado:'#f43f5e',Bloqueado:'#7c3aed',Resuelto:'#0ea5e9'};
+
+function getBitacoraTorre(torreId) {
+  const raw = bitacoraCache[torreId] || {};
+  return Object.entries(raw)
+    .map(([k,v]) => ({key:k, ...v}))
+    .sort((a,b) => (a.ts||'').localeCompare(b.ts||''));
+}
+
+function getUltimoComentario(torreId) {
+  const list = getBitacoraTorre(torreId);
+  return list.length ? list[list.length-1] : null;
+}
+
+function abrirBitacora(torreId) {
+  renderBitacoraModal(torreId);
+}
+
+function renderBitacoraModal(torreId, editKey) {
+  const lista = getBitacoraTorre(torreId);
+  const editItem = editKey ? lista.find(i=>i.key===editKey) : null;
+  const today = new Date().toISOString().slice(0,10);
+
+  const formHtml = `
+    <div style="background:#1e293b;border-radius:10px;padding:14px;margin-bottom:14px">
+      <div style="font-size:11px;color:#f59e0b;font-weight:800;margin-bottom:10px">${editKey?'\u270F\uFE0F Editar comentario':'\u2795 Nuevo comentario'}</div>
+      <textarea id="bit-texto" placeholder="Comentario, observaci\u00f3n, novedad\u2026" rows="3"
+        style="width:100%;background:#0f172a;color:#f8fafc;border:1px solid #334155;border-radius:8px;padding:10px;font-size:13px;resize:vertical">${editItem?editItem.texto:''}</textarea>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <input id="bit-responsable" placeholder="Responsable" value="${editItem?editItem.responsable:''}"
+          style="background:#0f172a;color:#f8fafc;border:1px solid #334155;border-radius:8px;padding:8px;font-size:12px"/>
+        <input id="bit-fecha" type="date" value="${editItem?editItem.fecha:today}"
+          style="background:#0f172a;color:#f8fafc;border:1px solid #334155;border-radius:8px;padding:8px;font-size:12px"/>
+      </div>
+      <select id="bit-estado" style="width:100%;margin-top:8px;background:#0f172a;color:#f8fafc;border:1px solid #334155;border-radius:8px;padding:8px;font-size:12px">
+        ${BITACORA_ESTADOS.map(e=>`<option value="${e}" ${(editItem?editItem.estado:'Normal')===e?'selected':''}>${e}</option>`).join('')}
+      </select>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="action-btn btn-primary" style="flex:1;margin:0" onclick="guardarComentario('${torreId}','${editKey||''}')">&#128190; Guardar</button>
+        ${editKey?`<button class="action-btn btn-secondary" style="margin:0" onclick="renderBitacoraModal('${torreId}')">Cancelar</button>`:''}
+      </div>
+    </div>`;
+
+  const historialHtml = lista.length ? lista.slice().reverse().map(item => `
+    <div style="background:#1e293b;border-radius:8px;padding:12px;margin-bottom:8px;border-left:3px solid ${BITACORA_COLORS[item.estado]||'#334155'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1">
+          <div style="font-size:12px;color:#f8fafc;line-height:1.4">${item.texto}</div>
+          <div style="font-size:10px;color:#64748b;margin-top:5px">${item.fecha||''}${item.responsable?' \u00b7 '+item.responsable:''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex-shrink:0">
+          <span style="font-size:9px;font-weight:700;color:${BITACORA_COLORS[item.estado]||'#334155'};background:${BITACORA_COLORS[item.estado]||'#334155'}22;border-radius:4px;padding:2px 6px">${item.estado||'Normal'}</span>
+          <div style="display:flex;gap:4px">
+            <button onclick="renderBitacoraModal('${torreId}','${item.key}')" style="background:none;border:1px solid #334155;color:#94a3b8;border-radius:5px;padding:2px 7px;font-size:10px;cursor:pointer">\u270F\uFE0F</button>
+            <button onclick="eliminarComentario('${torreId}','${item.key}')" style="background:none;border:1px solid #f43f5e44;color:#f43f5e;border-radius:5px;padding:2px 7px;font-size:10px;cursor:pointer">\u2715</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('') :
+    '<div style="text-align:center;color:#475569;padding:16px;font-size:12px">Sin comentarios a\u00fan</div>';
+
+  openModal('&#128203; Torre '+torreId+' \u2014 Bit\u00e1cora', formHtml + historialHtml + `<button class="action-btn btn-secondary" onclick="closeModal()">Cerrar</button>`);
+}
+
+async function guardarComentario(torreId, editKey) {
+  const texto = (document.getElementById('bit-texto').value||'').trim();
+  const responsable = (document.getElementById('bit-responsable').value||'').trim();
+  const fecha = document.getElementById('bit-fecha').value;
+  const estado = document.getElementById('bit-estado').value;
+  if (!texto) { showToast('\u26A0\uFE0F El comentario no puede estar vac\u00edo'); return; }
+  const entry = { texto, responsable, fecha, estado, ts: new Date().toISOString() };
+  if (!bitacoraCache[torreId]) bitacoraCache[torreId] = {};
+  if (editKey) {
+    bitacoraCache[torreId][editKey] = {...bitacoraCache[torreId][editKey], ...entry};
+    if (dbReady && db) await db.ref('bitacora/'+torreId+'/'+editKey).set(bitacoraCache[torreId][editKey]);
+  } else {
+    const newKey = 'c' + Date.now();
+    bitacoraCache[torreId][newKey] = entry;
+    if (dbReady && db) await db.ref('bitacora/'+torreId+'/'+newKey).set(entry);
+    else { try { localStorage.setItem('bitacora', JSON.stringify(bitacoraCache)); } catch {} }
+  }
+  showToast('\u2705 Comentario guardado');
+  renderBitacoraModal(torreId);
+  renderCurrentView();
+}
+
+async function eliminarComentario(torreId, key) {
+  if (!confirm('\u00BFEliminar este comentario?')) return;
+  if (bitacoraCache[torreId]) delete bitacoraCache[torreId][key];
+  if (dbReady && db) await db.ref('bitacora/'+torreId+'/'+key).remove();
+  else { try { localStorage.setItem('bitacora', JSON.stringify(bitacoraCache)); } catch {} }
+  showToast('\uD83D\uDDD1\uFE0F Comentario eliminado');
+  renderBitacoraModal(torreId);
+  renderCurrentView();
+}
+
 // Clave en Firebase DB: fotos/TORRE_ID = [{url, nombre, fecha, size}]
 
 let fotosStorage = null;
@@ -2927,11 +3082,6 @@ function renderPorSector() {
 
 // ── LISTA ─────────────────────────────────────────────────────
 function renderLista() {
-  // Antes pedía elegir un sector primero; ahora muestra todas las torres de
-  // inmediato. listaSector sigue funcionando como filtro opcional (vía clic
-  // desde Mapa, Por Sector, o el dashboard), pero ya no es obligatorio.
-
-  // Level 2: show torres of selected sector with filters
   const groups = getSectorGroups();
   const sectorGroup = listaSector ? groups.find(s => s.key === listaSector) : null;
   const sectorTorres = sectorGroup ? sectorGroup.torres.map(t=>t.id) : null;
@@ -2939,22 +3089,26 @@ function renderLista() {
   let lista = TORRES
     .filter(t => {
       const av=avances[t.id]||{};
-      // Filter by sector group if selected
       if (sectorTorres && !sectorTorres.includes(t.id)) return false;
       if (!sectorTorres) {
         if (filtroSector && t.sector!==filtroSector) return false;
         if (filtroTramo === 'globaltec' && t.contratista !== 'Globaltec') return false;
         if (filtroTramo === 'sinasignar' && t.contratista !== 'Sin asignar') return false;
       }
+      // Nuevos filtros
+      if (filtroContratista && t.contratista !== filtroContratista) return false;
+      if (filtroClasificacion) {
+        const cl = t.clasificacion || t.tipo || '';
+        if (cl !== filtroClasificacion) return false;
+      }
+      if (filtroConComentario && !getUltimoComentario(t.id)) return false;
       if (filtroEstado) {
         const est=getEstado(av);
         if (filtroEstado==='terminada'    && est!=='terminada')    return false;
         if (filtroEstado==='impedimento'  && !isImpedimento(av))  return false;
         if (filtroEstado==='montajeListo' && est!=='montajeListo') return false;
         if (filtroEstado==='oocc'         && est!=='oocc')         return false;
-        // ooccCivil = todas con fnd 100% (incluye montajeListo, oocc, ooccCivil)
         if (filtroEstado==='ooccCivil'    && !isOOCCCivil(av))    return false;
-        // montaje sub-states
         if (filtroEstado==='mntSinIniciar' && !(isEnScopeMontaje(av) && (av.prearmado||0)<0.001 && (av.montaje_estructura||0)<0.001)) return false;
         if (filtroEstado==='mntPrearmado'  && !((av.prearmado||0)>0 && (av.prearmado||0)<0.999 && (av.montaje_estructura||0)<0.001 && isEnScopeMontaje(av))) return false;
         if (filtroEstado==='mntPrearmadoListo' && !((av.prearmado||0)>=0.999 && (av.montaje_estructura||0)<0.001 && isEnScopeMontaje(av))) return false;
@@ -2963,7 +3117,14 @@ function renderLista() {
         if (filtroEstado==='proceso'      && est!=='proceso')      return false;
         if (filtroEstado==='sinInicio'    && est!=='sinInicio')    return false;
       }
-      if (searchQuery && !String(t.id).includes(searchQuery) && !t.tipo.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const ultimo = getUltimoComentario(t.id);
+        const matchComentario = ultimo && (ultimo.texto||'').toLowerCase().includes(q);
+        if (!String(t.id).includes(q) && !(t.tipo||'').toLowerCase().includes(q) &&
+            !(t.modelo||'').toLowerCase().includes(q) && !(t.contratista||'').toLowerCase().includes(q) &&
+            !matchComentario) return false;
+      }
       return true;
     })
     .sort((a,b) => {
@@ -2982,41 +3143,66 @@ function renderLista() {
       <button onclick="setListaSector(null)" style="background:none;border:none;color:#f59e0b;font-size:12px;cursor:pointer">← Volver</button>
     </div>` : '';
 
+  // Chips de filtro activos
+  const activeFilters = [];
+  if (filtroContratista) activeFilters.push({label:'🏢 '+filtroContratista, clear:"filtroContratista=null;renderCurrentView()"});
+  if (filtroClasificacion) activeFilters.push({label:'🔷 '+filtroClasificacion, clear:"filtroClasificacion=null;renderCurrentView()"});
+  if (filtroConComentario) activeFilters.push({label:'💬 Con comentarios', clear:"filtroConComentario=false;renderCurrentView()"});
+  const activeChips = activeFilters.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+    ${activeFilters.map(f=>`<span onclick="${f.clear}" style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44;border-radius:20px;padding:3px 10px;font-size:10px;cursor:pointer">${f.label} ✕</span>`).join('')}
+  </div>` : '';
+
+  // Selector de filtros rápidos
+  const filtersHtml = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
+    <select onchange="filtroContratista=this.value||null;renderCurrentView()" style="font-size:11px;background:#1e293b;color:#94a3b8;border:1px solid #334155;border-radius:8px;padding:5px 8px">
+      <option value="">🏢 Contratista</option>
+      ${['Globaltec','Elecnor','CSTC','Sin asignar'].map(c=>`<option value="${c}" ${filtroContratista===c?'selected':''}>${c}</option>`).join('')}
+    </select>
+    <select onchange="filtroClasificacion=this.value||null;renderCurrentView()" style="font-size:11px;background:#1e293b;color:#94a3b8;border:1px solid #334155;border-radius:8px;padding:5px 8px">
+      <option value="">🔷 Clasificación</option>
+      ${['Suspensión','Anclaje','Anclaje/Remate','Transposición'].map(c=>`<option value="${c}" ${filtroClasificacion===c?'selected':''}>${c}</option>`).join('')}
+    </select>
+    <button onclick="filtroConComentario=!filtroConComentario;renderCurrentView()" style="font-size:11px;background:${filtroConComentario?'#f59e0b':'#1e293b'};color:${filtroConComentario?'#0f172a':'#94a3b8'};border:1px solid #334155;border-radius:8px;padding:5px 8px;cursor:pointer">💬 Con comentarios</button>
+    <span style="font-size:10px;color:#475569;margin-left:auto">${lista.length} torre${lista.length!==1?'s':''}</span>
+  </div>`;
+
   return `<div style="padding-bottom:40px">
     ${sectorHeaderHtml}
     <div style="display:flex;gap:8px;margin-bottom:10px">
-      <input type="text" placeholder="Buscar torre…" value="${searchQuery}"
+      <input type="text" placeholder="Buscar torre, modelo, contratista, comentario…" value="${searchQuery}"
         oninput="searchQuery=this.value;renderCurrentView()" style="flex:1"/>
       <button class="action-btn btn-primary" onclick="openAgregarTorre()" style="width:auto;padding:8px 14px;margin:0;font-size:12px">+ Torre</button>
     </div>
+    ${filtersHtml}
+    ${activeChips}
     ${lista.map(t => {
       const av=avances[t.id]||{}, cfg=!!av._fnd;
       const g=cfg?calcGlobal(av):null, fnd=cfg?calcFnd(av):null, mnt=cfg?calcMnt(av):null;
-      const fndTag=av._fnd==='ancla'?'⚓ Cabezal':av._fnd==='hormigon'?'🏗️ Hormigón':av._fnd==='na'?'✖️ N/A':'⚙️';
       const si=statusInfo(av);
       const protos=getTorreProtocolos(t.id);
       const cnt=countProtos(protos);
       const borderC=isImpedimento(av)?'#f43f5e':cfg?getColor(g):'#334155';
       const updated=av._updated?formatDate(av._updated):'—';
+      const ultimo=getUltimoComentario(t.id);
+      const clasif=t.clasificacion||t.tipo||'—';
+      const modeloLabel=t.modelo&&t.modelo!=='—'?t.modelo:'—';
       return `<div class="torre-item" style="border-left-color:${borderC}" onclick="goDetalle('${t.id}')">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span class="torre-name">Torre ${t.id} <span style="font-size:10px;color:#475569;font-weight:400">${t.modelo}</span></span>
+          <span class="torre-name">Torre ${t.id} <span style="font-size:10px;color:#94a3b8;font-weight:400">${modeloLabel}</span></span>
           <span style="font-size:9px;font-weight:700;color:${si.c};background:${si.c}22;border-radius:5px;padding:2px 7px">${si.label}</span>
         </div>
         <div class="torre-meta">
-          <span>${t.tipo}</span><span>·</span><span>${t.sector}</span>
-          ${t.contratista?`<span class="tramo-badge ${t.contratista==='Globaltec'?'tramo-globaltec':t.contratista==='CSTC'?'tramo-cstc':t.estado_tramo==='pendiente'?'tramo-pendiente':''}">${t.contratista}</span>`:''}
-          ${t.tramo==='cruce'?'<span class="tramo-badge tramo-cruce">⛓️ Cruce</span>':''}
-          ${t.estado_tramo==='pendiente'?'<span class="tramo-badge tramo-pendiente">Sin asignar</span>':''}
+          <span style="color:#64748b">${clasif}</span><span>·</span><span>${t.sector}</span>
+          ${t.contratista?`<span class="tramo-badge ${t.contratista==='Globaltec'?'tramo-globaltec':t.contratista==='CSTC'?'tramo-cstc':t.contratista==='Elecnor'?'tramo-globaltec':t.estado_tramo==='pendiente'?'tramo-pendiente':''}">${t.contratista}</span>`:''}
         </div>
         ${isImpedimento(av)?`<div style="font-size:10px;color:#f43f5e;margin-bottom:4px">🔴 ${av._impedimento_nota||'Sin nota'}</div>`:''}
+        ${ultimo?`<div style="font-size:10px;color:#94a3b8;margin:4px 0;padding:5px 8px;background:#1e293b44;border-radius:6px;border-left:2px solid ${BITACORA_COLORS[ultimo.estado]||'#334155'}">💬 ${ultimo.texto.slice(0,80)}${ultimo.texto.length>80?'…':''} <span style="color:#475569">(${ultimo.fecha||''}${ultimo.responsable?' · '+ultimo.responsable:''})</span></div>`:''}
         ${cfg?bar(g,null,4):''}
         <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
           ${cfg?`<span style="font-size:9px;color:#64748b">Fnd: ${pct(fnd)}%</span><span style="font-size:9px;color:#64748b">Mnt: ${pct(mnt)}%</span>`:''}
           ${cnt.total>0?`<span style="font-size:9px;color:#10b981">✓${cnt.ok}/${cnt.total}</span>`:''}
           <span style="font-size:9px;color:#334155">🕐${updated}</span>
-          ${getPrimeraFechaInicio(avances[t.id]||{}) ? `<span style="font-size:9px;color:#60a5fa">🗓️ ${getPrimeraFechaInicio(avances[t.id]||{})}</span>` : ''}
-          ${getUltimaFechaCompletado(avances[t.id]||{}) ? `<span style="font-size:9px;color:#10b981">🏁 ${getUltimaFechaCompletado(avances[t.id]||{})}</span>` : ''}
+          ${t.dist_acumulada?`<span style="font-size:9px;color:#475569">📍${(t.dist_acumulada/1000).toFixed(1)}km</span>`:''}
         </div>
       </div>`;
     }).join('')}
@@ -4473,6 +4659,54 @@ function renderDetalle(id) {
       <div id="montaje-section">${getEtapasMontaje().map(e=>actMntHtml(e,av)).join('')}</div>
     </div>
     `:''}
+
+    <!-- Campos editables de la torre -->
+    <div class="card" style="margin-top:10px">
+      <div class="sec-hdr" style="margin-bottom:10px">
+        <div class="sec-title">✏️ INFORMACIÓN DE LA TORRE</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${[
+          {f:'modelo',label:'Modelo',val:torre.modelo,opts:null},
+          {f:'clasificacion',label:'Clasificación',val:torre.clasificacion||torre.tipo,opts:['Suspensión','Anclaje','Anclaje/Remate','Transposición']},
+          {f:'contratista',label:'Contratista',val:torre.contratista,opts:['Globaltec','Elecnor','CSTC','Sin asignar','Otro']},
+          {f:'sector',label:'Sector',val:torre.sector,opts:['Continente','Isla','Cruce','Subestación']},
+          {f:'dist_acumulada',label:'Dist. acumulada (m)',val:torre.dist_acumulada||'—',opts:null},
+          {f:'vano_adelante',label:'Vano adelante (m)',val:torre.vano_adelante||'—',opts:null},
+          {f:'estado_tramo',label:'Estado tramo',val:torre.estado_tramo,opts:['activo','pendiente','suspendido']},
+          {f:'observaciones',label:'Observaciones',val:torre.observaciones||'',opts:null},
+        ].map(({f,label,val,opts})=>`
+          <div style="background:#1e293b;border-radius:8px;padding:10px;cursor:pointer" onclick="openEditTorreField('${id}','${f}','${val}','${label}',${opts?JSON.stringify(opts):'null'})">
+            <div style="font-size:9px;color:#64748b;letter-spacing:.5px;margin-bottom:3px">${label}</div>
+            <div style="font-size:12px;color:#f8fafc;font-weight:600">${val||'—'}</div>
+            <div style="font-size:9px;color:#f59e0b;margin-top:3px">toca para editar ✏️</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Bitácora -->
+    <div class="card" style="margin-top:10px">
+      <div class="sec-hdr" style="margin-bottom:10px">
+        <div class="sec-title">📋 BITÁCORA / COMENTARIOS</div>
+        <button onclick="abrirBitacora('${id}')" style="background:#f59e0b;border:none;color:#0f172a;border-radius:8px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer">+ Comentario</button>
+      </div>
+      ${(()=>{
+        const ultimo = getUltimoComentario(id);
+        const lista = getBitacoraTorre(id);
+        if (!ultimo) return '<div style="font-size:11px;color:#475569;padding:8px 0">Sin comentarios. Toca el botón para agregar.</div>';
+        const col = BITACORA_COLORS[ultimo.estado]||'#334155';
+        return `<div style="background:#1e293b;border-radius:8px;padding:12px;border-left:3px solid ${col};cursor:pointer" onclick="abrirBitacora('${id}')">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+            <div style="flex:1">
+              <div style="font-size:11px;color:#f8fafc;line-height:1.4">${ultimo.texto}</div>
+              <div style="font-size:10px;color:#64748b;margin-top:4px">${ultimo.fecha||''}${ultimo.responsable?' · '+ultimo.responsable:''}</div>
+            </div>
+            <span style="font-size:9px;font-weight:700;color:${col};background:${col}22;border-radius:4px;padding:2px 6px;white-space:nowrap">${ultimo.estado||'Normal'}</span>
+          </div>
+          ${lista.length>1?`<div style="font-size:10px;color:#f59e0b;margin-top:8px">Ver todos (${lista.length}) →</div>`:''}
+        </div>`;
+      })()}
+    </div>
   </div>`;
 }
 
