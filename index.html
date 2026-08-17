@@ -344,9 +344,10 @@ div[style*="color:#f43f5e"], span[style*="color:#f43f5e"]{color:#e11d48!importan
     </div>
     <div class="tabs" id="main-tabs">
       <button class="tab active"  onclick="goView('dashboard')">📊 Dashboard</button>
-      <button class="tab"         onclick="goView('mapa')">🗺️ Mapa</button>
+      <button class="tab"         onclick="goView('mapa')">🗼 OOCC/Mont.</button>
       <button class="tab"         onclick="goView('lista')">📋 Torres</button>
-      <button class="tab"         onclick="goView('vanos')">🧵 Vanos</button>
+      <button class="tab"         onclick="goView('vanos')">📏 Vanos</button>
+      <button class="tab"         onclick="goView('tendido')">🔌 Tendido</button>
       <button class="tab"         onclick="goView('porSector')">📐 Por Sector</button>
       <button class="tab"         onclick="goView('matriz')">📊 Matriz</button>
       <button class="tab"         onclick="goView('protocolos')">📄 Protos</button>
@@ -382,13 +383,16 @@ div[style*="color:#f43f5e"], span[style*="color:#f43f5e"]{color:#e11d48!importan
         <span class="sb-icon">📊</span> Dashboard
       </button>
       <button class="sidebar-btn" id="sb-mapa" onclick="goView('mapa')">
-        <span class="sb-icon">🗺️</span> Mapa de Torres
+        <span class="sb-icon">🗼</span> OOCC y Montaje
       </button>
       <button class="sidebar-btn" id="sb-lista" onclick="goView('lista')">
         <span class="sb-icon">📋</span> Lista de Torres
       </button>
       <button class="sidebar-btn" id="sb-vanos" onclick="goView('vanos')">
-        <span class="sb-icon">🧵</span> Vanos de Tendido
+        <span class="sb-icon">📏</span> Vanos de Tendido
+      </button>
+      <button class="sidebar-btn" id="sb-tendido" onclick="goView('tendido')">
+        <span class="sb-icon">🔌</span> Tendido
       </button>
       <button class="sidebar-btn" id="sb-porSector" onclick="goView('porSector')">
         <span class="sb-icon">📐</span> Avance por Sector
@@ -431,35 +435,36 @@ const firebaseConfig = {
 // ─── PONDERACIONES ────────────────────────────────────────────
 // Cada valor representa el % que esa actividad aporta al 100% de la torre.
 // Reglas:
-//   gen_* suman exactamente 0.20 (20%)
-//   ancla_* internos suman 1.0  (su bloque vale global_fnd = 0.40)
-//   horm_* internos suman 1.0   (su bloque vale global_fnd = 0.40)
-//   mnt_*  internos suman 1.0   (su bloque vale global_mnt  = 0.40)
-//   gen_suma + global_fnd + global_mnt = 1.0  ← DEBE CUMPLIRSE SIEMPRE
+//   gen_* suman exactamente 0.10 (10%)
+//   ancla_* internos suman 1.0  (su bloque vale global_fnd = 0.30)
+//   horm_* internos suman 1.0   (su bloque vale global_fnd = 0.30)
+//   mnt_*  internos suman 1.0   (su bloque vale global_mnt  = 0.30)
+//   tnd_*  internos suman 1.0   (su bloque vale global_tnd  = 0.30)
+//   gen_suma + global_fnd + global_mnt + global_tnd = 1.0  ← DEBE CUMPLIRSE SIEMPRE
 const DEFAULT_PESOS = {
-  // ── GENERALES: peso directo sobre 100% de la torre (suman 0.20 = 20%) ──
-  gen_liberacion:   0.035,  // 3.5%
-  gen_perturbacion: 0.035,  // 3.5%
-  gen_tala_roce:    0.030,  // 3.0%
-  gen_accesos:      0.035,  // 3.5%
-  gen_replanteo:    0.035,  // 3.5%
-  gen_malla_tierra: 0.030,  // 3.0%
+  // ── GENERALES: peso directo sobre 100% de la torre (suman 0.10 = 10%) ──
+  gen_liberacion:   0.0175, // 1.75%
+  gen_perturbacion: 0.0175, // 1.75%
+  gen_tala_roce:    0.0150, // 1.5%
+  gen_accesos:      0.0175, // 1.75%
+  gen_replanteo:    0.0175, // 1.75%
+  gen_malla_tierra: 0.0150, // 1.5%
   // ── ANCLA: pesos internos del bloque fundación (suman 1.0) ──
-  // Bloque fundación = 40% del total  →  cada uno × 0.40 = % real
-  ancla_trazado_anclas:  0.20,  // 20% interno → 8.0% real
-  ancla_inst_anclas:     0.45,  // 45% interno → 18.0% real
-  ancla_montaje_cabezal: 0.20,  // 20% interno → 8.0% real
-  ancla_grouting:        0.15,  // 15% interno → 6.0% real
+  // Bloque fundación = 30% del total  →  cada uno × 0.30 = % real
+  ancla_trazado_anclas:  0.20,  // 20% interno → 6.0% real
+  ancla_inst_anclas:     0.45,  // 45% interno → 13.5% real
+  ancla_montaje_cabezal: 0.20,  // 20% interno → 6.0% real
+  ancla_grouting:        0.15,  // 15% interno → 4.5% real
   // ── HORMIGÓN: pesos internos del bloque fundación (suman 1.0) ──
-  horm_trazado_h:         0.075, // 7.5% interno → 3.0% real
-  horm_inst_anclas_h:     0.150, // 15%  interno → 6.0% real
-  horm_excavacion:        0.125, // 12.5%→ 5.0% real
-  horm_armadura_zapatas:  0.125, // 12.5%→ 5.0% real
-  horm_armadura_vastagos: 0.125, // 12.5%→ 5.0% real
-  horm_inst_stubs:        0.125, // 12.5%→ 5.0% real
-  horm_moldajes:          0.100, // 10%  → 4.0% real
-  horm_hormigonado:       0.125, // 12.5%→ 5.0% real
-  horm_relleno_compact:   0.050, //  5%  → 2.0% real
+  horm_trazado_h:         0.075, // 7.5% interno → 2.25% real
+  horm_inst_anclas_h:     0.150, // 15%  interno → 4.5% real
+  horm_excavacion:        0.125, // 12.5%→ 3.75% real
+  horm_armadura_zapatas:  0.125, // 12.5%→ 3.75% real
+  horm_armadura_vastagos: 0.125, // 12.5%→ 3.75% real
+  horm_inst_stubs:        0.125, // 12.5%→ 3.75% real
+  horm_moldajes:          0.100, // 10%  → 3.0% real
+  horm_hormigonado:       0.125, // 12.5%→ 3.75% real
+  horm_relleno_compact:   0.050, //  5%  → 1.5% real
   // ── TRADICIONAL: pesos internos del bloque fundación (suman 1.0) ──
   trad_replanteo:       0.05,  //  5%
   trad_escarpe:         0.07,  //  7%
@@ -474,30 +479,38 @@ const DEFAULT_PESOS = {
   trad_relleno_compact: 0.10,  // 10%
   trad_malla_pat:       0.05,  //  5%
   // ── MONTAJE: pesos internos del bloque montaje (suman 1.0) ──
-  // Bloque montaje = 40% del total  →  cada uno × 0.40 = % real
-  mnt_recepcion_material: 0.10, // 10% interno → 4.0% real
-  mnt_prearmado:          0.30, // 30% interno → 12.0% real
-  mnt_montaje_estructura: 0.50, // 50% interno → 20.0% real
-  mnt_giro_aplome_torque: 0.10, // 10% interno → 4.0% real
+  // Bloque montaje = 30% del total  →  cada uno × 0.30 = % real
+  mnt_recepcion_material: 0.10, // 10% interno → 3.0% real
+  mnt_prearmado:          0.30, // 30% interno → 9.0% real
+  mnt_montaje_estructura: 0.50, // 50% interno → 15.0% real
+  mnt_giro_aplome_torque: 0.10, // 10% interno → 3.0% real
+  // ── TENDIDO: pesos internos del bloque tendido (suman 1.0) ──
+  // Bloque tendido = 30% del total  →  cada uno × 0.30 = % real
+  tnd_vestido:      0.20, // 20% interno → 6.0% real
+  tnd_perlon:       0.10, // 10% interno → 3.0% real
+  tnd_conductor:    0.30, // 30% interno → 9.0% real
+  tnd_remates:      0.30, // 30% interno → 9.0% real
+  tnd_miscelaneos:  0.10, // 10% interno → 3.0% real
   // ── PESOS GLOBALES DE BLOQUE ──
-  // gen_suma (0.20) + global_fnd (0.40) + global_mnt (0.40) = 1.00 ✓
-  global_fnd: 0.40,
-  global_mnt: 0.40,
+  // gen_suma (0.10) + global_fnd (0.30) + global_mnt (0.30) + global_tnd (0.30) = 1.00 ✓
+  global_fnd: 0.30,
+  global_mnt: 0.30,
+  global_tnd: 0.30,
 };
 
 let PESOS = {};
 
 function loadPesos() {
   try {
-    const s = localStorage.getItem('pesos_v2'); // v2 = new balanced weights
-    PESOS = s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULT_PESOS));
-    // Limpiar pesos anteriores
-    try { localStorage.removeItem('pesos_v1'); } catch {}
+    const s = localStorage.getItem('pesos_v3'); // v3 = incluye bloque Tendido (10/30/30/30)
+    PESOS = s ? Object.assign({}, DEFAULT_PESOS, JSON.parse(s)) : JSON.parse(JSON.stringify(DEFAULT_PESOS));
+    // Limpiar pesos anteriores (v1/v2 no tenían bloque de Tendido)
+    try { localStorage.removeItem('pesos_v1'); localStorage.removeItem('pesos_v2'); } catch {}
   } catch { PESOS = JSON.parse(JSON.stringify(DEFAULT_PESOS)); }
 }
 
 function savePesos() {
-  localStorage.setItem('pesos_v2', JSON.stringify(PESOS));
+  localStorage.setItem('pesos_v3', JSON.stringify(PESOS));
   if (dbReady && db) db.ref('config/pesos').set(PESOS);
 }
 
@@ -510,6 +523,7 @@ const HITOS_DATA = {
       "desc": "Avance Fundaciones 50%",
       "fecha_pm": "2026-05-28",
       "fecha_doc": "2026-07-02",
+      "fecha_real": "2026-06-04",
       "meta_pct": 50,
       "tipo": "fundacion",
       "tramo": "isla"
@@ -517,8 +531,8 @@ const HITOS_DATA = {
     {
       "n": 2,
       "desc": "Término Fundaciones 100%",
-      "fecha_pm": "2026-11-01",
-      "fecha_doc": "2026-11-06",
+      "fecha_pm": "2026-10-30",
+      "fecha_doc": "2026-11-04",
       "meta_pct": 100,
       "tipo": "fundacion",
       "tramo": "isla"
@@ -526,8 +540,8 @@ const HITOS_DATA = {
     {
       "n": 3,
       "desc": "Avance Montaje 50%",
-      "fecha_pm": "2026-06-18",
-      "fecha_doc": "2026-06-23",
+      "fecha_pm": "2026-08-29",
+      "fecha_doc": "2026-09-03",
       "meta_pct": 50,
       "tipo": "montaje",
       "tramo": "isla"
@@ -535,8 +549,8 @@ const HITOS_DATA = {
     {
       "n": 4,
       "desc": "Término Montaje 100%",
-      "fecha_pm": "2026-11-18",
-      "fecha_doc": "2026-11-23",
+      "fecha_pm": "2026-12-05",
+      "fecha_doc": "2026-12-10",
       "meta_pct": 100,
       "tipo": "montaje",
       "tramo": "isla"
@@ -544,8 +558,8 @@ const HITOS_DATA = {
     {
       "n": 5,
       "desc": "Avance Tendido Conductor 50%",
-      "fecha_pm": "2026-10-17",
-      "fecha_doc": "2026-10-22",
+      "fecha_pm": "2026-11-19",
+      "fecha_doc": "2026-11-24",
       "meta_pct": 50,
       "tipo": "tendido",
       "tramo": "isla"
@@ -553,8 +567,8 @@ const HITOS_DATA = {
     {
       "n": 6,
       "desc": "Término Tendido Conductor 100%",
-      "fecha_pm": "2027-01-13",
-      "fecha_doc": "2027-01-18",
+      "fecha_pm": "2027-03-11",
+      "fecha_doc": "2027-03-16",
       "meta_pct": 100,
       "tipo": "tendido",
       "tramo": "isla"
@@ -562,8 +576,8 @@ const HITOS_DATA = {
     {
       "n": 7,
       "desc": "Avance Tendido OPGW 50%",
-      "fecha_pm": "2026-12-12",
-      "fecha_doc": "2026-12-17",
+      "fecha_pm": "2027-01-25",
+      "fecha_doc": "2027-01-30",
       "meta_pct": 50,
       "tipo": "opgw",
       "tramo": "isla"
@@ -571,8 +585,8 @@ const HITOS_DATA = {
     {
       "n": 8,
       "desc": "Avance Tendido OPGW 100%",
-      "fecha_pm": "2027-01-29",
-      "fecha_doc": "2027-02-03",
+      "fecha_pm": "2027-03-18",
+      "fecha_doc": "2027-03-23",
       "meta_pct": 100,
       "tipo": "opgw",
       "tramo": "isla"
@@ -580,8 +594,8 @@ const HITOS_DATA = {
     {
       "n": 9,
       "desc": "Puentes, Empalmes OPGW y Terminaciones",
-      "fecha_pm": "2027-02-15",
-      "fecha_doc": "2027-03-08",
+      "fecha_pm": "2027-03-19",
+      "fecha_doc": "2027-04-09",
       "meta_pct": 100,
       "tipo": "terminaciones",
       "tramo": "isla"
@@ -589,8 +603,8 @@ const HITOS_DATA = {
     {
       "n": 10,
       "desc": "Pruebas",
-      "fecha_pm": "2027-02-15",
-      "fecha_doc": "2027-03-10",
+      "fecha_pm": "2027-03-20",
+      "fecha_doc": "2027-04-12",
       "meta_pct": 100,
       "tipo": "pruebas",
       "tramo": "isla"
@@ -598,8 +612,8 @@ const HITOS_DATA = {
     {
       "n": 11,
       "desc": "Carpetas TOP y Cierre Punch List",
-      "fecha_pm": "2027-03-15",
-      "fecha_doc": "2027-03-15",
+      "fecha_pm": null,
+      "fecha_doc": "2027-04-17",
       "meta_pct": 100,
       "tipo": "cierre",
       "tramo": "isla"
@@ -609,7 +623,7 @@ const HITOS_DATA = {
     {
       "n": 1,
       "desc": "Finalización fundaciones torre suspensión cruce norte",
-      "fecha_pm": "2026-06-10",
+      "fecha_pm": "2026-09-22",
       "meta_pct": 100,
       "tipo": "fundacion",
       "tramo": "cruce",
@@ -627,7 +641,7 @@ const HITOS_DATA = {
     {
       "n": 3,
       "desc": "Finalización montaje estructura de suspensión cruce norte",
-      "fecha_pm": "2026-11-19",
+      "fecha_pm": "2027-06-02",
       "meta_pct": 100,
       "tipo": "montaje",
       "tramo": "cruce",
@@ -681,7 +695,7 @@ const HITOS_DATA = {
     {
       "n": 9,
       "desc": "Finalización del tendido de la línea principal",
-      "fecha_pm": "2027-09-14",
+      "fecha_pm": "2027-10-16",
       "meta_pct": 100,
       "tipo": "tendido",
       "tramo": "cruce"
@@ -692,7 +706,7 @@ const HITOS_DATA = {
       "n": 1,
       "desc": "Avance fundaciones 50% completadas",
       "fecha_pm": "2026-06-25",
-      "fecha_doc": "2026-07-05",
+      "fecha_doc": "2026-07-10",
       "meta_pct": 50,
       "tipo": "fundacion",
       "tramo": "continente"
@@ -700,8 +714,8 @@ const HITOS_DATA = {
     {
       "n": 2,
       "desc": "Término fundaciones 100%",
-      "fecha_pm": "2026-08-08",
-      "fecha_doc": "2026-08-15",
+      "fecha_pm": "2026-09-14",
+      "fecha_doc": "2026-09-19",
       "meta_pct": 100,
       "tipo": "fundacion",
       "tramo": "continente"
@@ -709,8 +723,8 @@ const HITOS_DATA = {
     {
       "n": 3,
       "desc": "Avance montaje de estructuras 50% completada",
-      "fecha_pm": "2026-07-20",
-      "fecha_doc": "2026-07-26",
+      "fecha_pm": "2026-08-31",
+      "fecha_doc": "2026-09-05",
       "meta_pct": 50,
       "tipo": "montaje",
       "tramo": "continente"
@@ -718,8 +732,8 @@ const HITOS_DATA = {
     {
       "n": 4,
       "desc": "Término montaje de estructuras 100%",
-      "fecha_pm": "2026-08-19",
-      "fecha_doc": "2026-08-24",
+      "fecha_pm": "2026-10-10",
+      "fecha_doc": "2026-10-15",
       "meta_pct": 100,
       "tipo": "montaje",
       "tramo": "continente"
@@ -727,8 +741,8 @@ const HITOS_DATA = {
     {
       "n": 5,
       "desc": "Avance tendido de conductor 50% completado",
-      "fecha_pm": "2026-08-16",
-      "fecha_doc": "2026-08-21",
+      "fecha_pm": "2026-09-30",
+      "fecha_doc": "2026-10-05",
       "meta_pct": 50,
       "tipo": "tendido",
       "tramo": "continente"
@@ -736,8 +750,8 @@ const HITOS_DATA = {
     {
       "n": 6,
       "desc": "Término tendido de conductor 100%",
-      "fecha_pm": "2026-09-27",
-      "fecha_doc": "2026-10-02",
+      "fecha_pm": "2026-11-06",
+      "fecha_doc": "2026-11-11",
       "meta_pct": 100,
       "tipo": "tendido",
       "tramo": "continente"
@@ -745,8 +759,8 @@ const HITOS_DATA = {
     {
       "n": 7,
       "desc": "Avance tendido OPGW 50% completado",
-      "fecha_pm": "2026-09-16",
-      "fecha_doc": "2026-09-21",
+      "fecha_pm": "2026-10-23",
+      "fecha_doc": "2026-10-28",
       "meta_pct": 50,
       "tipo": "opgw",
       "tramo": "continente"
@@ -754,8 +768,8 @@ const HITOS_DATA = {
     {
       "n": 8,
       "desc": "Término tendido OPGW 100%",
-      "fecha_pm": "2026-10-05",
-      "fecha_doc": "2026-10-10",
+      "fecha_pm": "2026-11-06",
+      "fecha_doc": "2026-11-11",
       "meta_pct": 100,
       "tipo": "opgw",
       "tramo": "continente"
@@ -763,8 +777,8 @@ const HITOS_DATA = {
     {
       "n": 9,
       "desc": "Puentes, empalmes OPGW 100%",
-      "fecha_pm": "2026-10-17",
-      "fecha_doc": "2026-10-20",
+      "fecha_pm": "2026-11-11",
+      "fecha_doc": "2026-12-02",
       "meta_pct": 100,
       "tipo": "terminaciones",
       "tramo": "continente"
@@ -772,8 +786,8 @@ const HITOS_DATA = {
     {
       "n": 10,
       "desc": "Pruebas",
-      "fecha_pm": "2026-10-20",
-      "fecha_doc": "2026-10-20",
+      "fecha_pm": "2026-11-14",
+      "fecha_doc": "2026-12-07",
       "meta_pct": 100,
       "tipo": "pruebas",
       "tramo": "continente"
@@ -782,10 +796,185 @@ const HITOS_DATA = {
       "n": 11,
       "desc": "Carpetas TOP y Cierre Punch List",
       "fecha_pm": null,
-      "fecha_doc": "2026-11-21",
+      "fecha_doc": "2026-12-12",
       "meta_pct": 100,
       "tipo": "cierre",
       "tramo": "continente"
+    }
+  ],
+  "pine": [
+    {
+      "n": 1,
+      "desc": "Término de OOCC Estructuras Altas y Sala de Control",
+      "fecha_pm": "2026-12-11",
+      "fecha_doc": "2026-12-18",
+      "meta_pct": 100,
+      "tipo": "fundacion",
+      "tramo": "pine"
+    },
+    {
+      "n": 2,
+      "desc": "Término de Montaje de Casetas de Control D4 y D5",
+      "fecha_pm": "2027-01-21",
+      "fecha_doc": "2027-01-28",
+      "meta_pct": 100,
+      "tipo": "montaje",
+      "tramo": "pine"
+    },
+    {
+      "n": 3,
+      "desc": "Término de Montaje de Estructuras Altas y Bajas",
+      "fecha_pm": "2027-03-05",
+      "fecha_doc": "2027-03-12",
+      "meta_pct": 100,
+      "tipo": "montaje",
+      "tramo": "pine"
+    },
+    {
+      "n": 4,
+      "desc": "Término de OO.CC. Estructuras GIS, AP, PR, Canaletas",
+      "fecha_pm": "2027-04-22",
+      "fecha_doc": "2027-04-29",
+      "meta_pct": 100,
+      "tipo": "fundacion",
+      "tramo": "pine"
+    },
+    {
+      "n": 5,
+      "desc": "Término Montaje de Equipos (GIS - PR - AP)",
+      "fecha_pm": "2027-05-11",
+      "fecha_doc": "2027-05-18",
+      "meta_pct": 100,
+      "tipo": "montaje",
+      "tramo": "pine"
+    },
+    {
+      "n": 6,
+      "desc": "Término de Tendido de Conductor AT entre ML y Conexión AT Equipos",
+      "fecha_pm": "2027-05-26",
+      "fecha_doc": "2027-06-02",
+      "meta_pct": 100,
+      "tipo": "tendido",
+      "tramo": "pine"
+    },
+    {
+      "n": 7,
+      "desc": "Término de Pruebas Eléctricas SAT/HIPOT",
+      "fecha_pm": "2027-06-11",
+      "fecha_doc": "2027-06-18",
+      "meta_pct": 100,
+      "tipo": "pruebas",
+      "tramo": "pine"
+    },
+    {
+      "n": 8,
+      "desc": "Término de Trabajos Control & Protecciones",
+      "fecha_pm": "2027-06-18",
+      "fecha_doc": "2027-06-25",
+      "meta_pct": 100,
+      "tipo": "terminaciones",
+      "tramo": "pine"
+    }
+  ],
+  "elecnor": [
+    {
+      "n": 1,
+      "desc": "Avance Fundaciones 50%",
+      "fecha_pm": null,
+      "fecha_doc": null,
+      "meta_pct": 50,
+      "tipo": "fundacion",
+      "tramo": "elecnor"
+    },
+    {
+      "n": 2,
+      "desc": "Término Fundaciones 100%",
+      "fecha_pm": null,
+      "fecha_doc": null,
+      "meta_pct": 100,
+      "tipo": "fundacion",
+      "tramo": "elecnor"
+    },
+    {
+      "n": 3,
+      "desc": "Avance Montaje 50%",
+      "fecha_pm": null,
+      "fecha_doc": null,
+      "meta_pct": 50,
+      "tipo": "montaje",
+      "tramo": "elecnor"
+    },
+    {
+      "n": 4,
+      "desc": "Término Montaje 100%",
+      "fecha_pm": null,
+      "fecha_doc": null,
+      "meta_pct": 100,
+      "tipo": "montaje",
+      "tramo": "elecnor"
+    },
+    {
+      "n": 5,
+      "desc": "Avance Tendido Conductor 50%",
+      "fecha_pm": null,
+      "fecha_doc": null,
+      "meta_pct": 50,
+      "tipo": "tendido",
+      "tramo": "elecnor"
+    },
+    {
+      "n": 6,
+      "desc": "Término Tendido Conductor 100%",
+      "fecha_pm": null,
+      "fecha_doc": null,
+      "meta_pct": 100,
+      "tipo": "tendido",
+      "tramo": "elecnor"
+    },
+    {
+      "n": 7,
+      "desc": "Avance Tendido OPGW 50%",
+      "fecha_pm": null,
+      "fecha_doc": null,
+      "meta_pct": 50,
+      "tipo": "opgw",
+      "tramo": "elecnor"
+    },
+    {
+      "n": 8,
+      "desc": "Término Tendido OPGW 100%",
+      "fecha_pm": null,
+      "fecha_doc": null,
+      "meta_pct": 100,
+      "tipo": "opgw",
+      "tramo": "elecnor"
+    },
+    {
+      "n": 9,
+      "desc": "Puentes, Empalmes OPGW y Terminaciones",
+      "fecha_pm": null,
+      "fecha_doc": null,
+      "meta_pct": 100,
+      "tipo": "terminaciones",
+      "tramo": "elecnor"
+    },
+    {
+      "n": 10,
+      "desc": "Pruebas",
+      "fecha_pm": null,
+      "fecha_doc": null,
+      "meta_pct": 100,
+      "tipo": "pruebas",
+      "tramo": "elecnor"
+    },
+    {
+      "n": 11,
+      "desc": "Carpetas TOP y Cierre Punch List",
+      "fecha_pm": null,
+      "fecha_doc": null,
+      "meta_pct": 100,
+      "tipo": "cierre",
+      "tramo": "elecnor"
     }
   ]
 };
@@ -799,60 +988,72 @@ const PROTO_STATES = [
 ];
 const PROTO_COLORS = {pendiente:'#64748b',emitido:'#3b82f6',observado:'#f59e0b',ok:'#10b981',na:'#475569'};
 
+// EL: devuelve el nombre editable de una partida (clave = misma clave de PESOS), o el default si no fue editado.
+function EL(k, def) { return (ETAPA_LABELS && ETAPA_LABELS[k]) || def; }
+
 function getEtapasAncla() {
   return [
-    {id:'trazado_anclas',  label:'Trazado de Anclas',    peso:PESOS.ancla_trazado_anclas,  proto:'pata'},
-    {id:'inst_anclas',     label:'Instalación de Anclas', peso:PESOS.ancla_inst_anclas,     proto:'pata'},
-    {id:'montaje_cabezal', label:'Montaje Cabezal Met.',  peso:PESOS.ancla_montaje_cabezal, proto:'pata'},
-    {id:'grouting',        label:'Grouting',              peso:PESOS.ancla_grouting,        proto:'pata'},
+    {id:'trazado_anclas',  label:EL('ancla_trazado_anclas','Trazado de Anclas'),    peso:PESOS.ancla_trazado_anclas,  proto:'pata'},
+    {id:'inst_anclas',     label:EL('ancla_inst_anclas','Instalación de Anclas'), peso:PESOS.ancla_inst_anclas,     proto:'pata'},
+    {id:'montaje_cabezal', label:EL('ancla_montaje_cabezal','Montaje Cabezal Met.'),  peso:PESOS.ancla_montaje_cabezal, proto:'pata'},
+    {id:'grouting',        label:EL('ancla_grouting','Grouting'),              peso:PESOS.ancla_grouting,        proto:'pata'},
   ];
 }
 function getEtapasHormigon() {
   return [
-    {id:'trazado_h',         label:'Trazado de Anclas',    peso:PESOS.horm_trazado_h,         proto:'pata'},
-    {id:'inst_anclas_h',     label:'Instalación de Anclas', peso:PESOS.horm_inst_anclas_h,     proto:'pata'},
-    {id:'excavacion',        label:'Excavación',            peso:PESOS.horm_excavacion,        proto:'pata'},
-    {id:'armadura_zapatas',  label:'Armadura Zapatas',      peso:PESOS.horm_armadura_zapatas,  proto:'pata'},
-    {id:'armadura_vastagos', label:'Armadura Vástagos',     peso:PESOS.horm_armadura_vastagos, proto:'pata'},
-    {id:'inst_stubs',        label:'Instalación Stubs',     peso:PESOS.horm_inst_stubs,        proto:'pata'},
-    {id:'moldajes',          label:'Moldajes',              peso:PESOS.horm_moldajes,          proto:'pata'},
-    {id:'hormigonado',       label:'Hormigonado',           peso:PESOS.horm_hormigonado,       proto:'pata'},
-    {id:'relleno_compact',   label:'Relleno y Compactado',  peso:PESOS.horm_relleno_compact,   proto:'torre'},
+    {id:'trazado_h',         label:EL('horm_trazado_h','Trazado de Anclas'),    peso:PESOS.horm_trazado_h,         proto:'pata'},
+    {id:'inst_anclas_h',     label:EL('horm_inst_anclas_h','Instalación de Anclas'), peso:PESOS.horm_inst_anclas_h,     proto:'pata'},
+    {id:'excavacion',        label:EL('horm_excavacion','Excavación'),            peso:PESOS.horm_excavacion,        proto:'pata'},
+    {id:'armadura_zapatas',  label:EL('horm_armadura_zapatas','Armadura Zapatas'),      peso:PESOS.horm_armadura_zapatas,  proto:'pata'},
+    {id:'armadura_vastagos', label:EL('horm_armadura_vastagos','Armadura Vástagos'),     peso:PESOS.horm_armadura_vastagos, proto:'pata'},
+    {id:'inst_stubs',        label:EL('horm_inst_stubs','Instalación Stubs'),     peso:PESOS.horm_inst_stubs,        proto:'pata'},
+    {id:'moldajes',          label:EL('horm_moldajes','Moldajes'),              peso:PESOS.horm_moldajes,          proto:'pata'},
+    {id:'hormigonado',       label:EL('horm_hormigonado','Hormigonado'),           peso:PESOS.horm_hormigonado,       proto:'pata'},
+    {id:'relleno_compact',   label:EL('horm_relleno_compact','Relleno y Compactado'),  peso:PESOS.horm_relleno_compact,   proto:'torre'},
   ];
 }
 function getEtapasTradicional() {
   return [
-    {id:'trad_replanteo',      label:'Replanteo',             peso:PESOS.trad_replanteo,      proto:'pata'},
-    {id:'trad_escarpe',        label:'Escarpe',               peso:PESOS.trad_escarpe,        proto:'pata'},
-    {id:'trad_excavacion',     label:'Excavación',            peso:PESOS.trad_excavacion,     proto:'pata'},
-    {id:'trad_sello',          label:'Sello',                 peso:PESOS.trad_sello,          proto:'pata'},
-    {id:'trad_emplantillado',  label:'Emplantillado',         peso:PESOS.trad_emplantillado,  proto:'pata'},
-    {id:'trad_enfierraduras',  label:'Enfierraduras',         peso:PESOS.trad_enfierraduras,  proto:'pata'},
-    {id:'trad_moldajes',       label:'Moldajes',              peso:PESOS.trad_moldajes,       proto:'pata'},
-    {id:'trad_horm_zapata',    label:'Hormigón Zapata',       peso:PESOS.trad_horm_zapata,    proto:'pata'},
-    {id:'trad_pernos_anclaje', label:'Pernos de Anclaje',     peso:PESOS.trad_pernos_anclaje, proto:'pata'},
-    {id:'trad_horm_pedestal',  label:'Hormigón Pedestal',     peso:PESOS.trad_horm_pedestal,  proto:'pata'},
-    {id:'trad_relleno_compact',label:'Relleno y Compactado',  peso:PESOS.trad_relleno_compact,proto:'pata'},
-    {id:'trad_malla_pat',      label:'Malla PAT',             peso:PESOS.trad_malla_pat,      proto:'pata'},
+    {id:'trad_replanteo',      label:EL('trad_replanteo','Replanteo'),             peso:PESOS.trad_replanteo,      proto:'pata'},
+    {id:'trad_escarpe',        label:EL('trad_escarpe','Escarpe'),               peso:PESOS.trad_escarpe,        proto:'pata'},
+    {id:'trad_excavacion',     label:EL('trad_excavacion','Excavación'),            peso:PESOS.trad_excavacion,     proto:'pata'},
+    {id:'trad_sello',          label:EL('trad_sello','Sello'),                 peso:PESOS.trad_sello,          proto:'pata'},
+    {id:'trad_emplantillado',  label:EL('trad_emplantillado','Emplantillado'),         peso:PESOS.trad_emplantillado,  proto:'pata'},
+    {id:'trad_enfierraduras',  label:EL('trad_enfierraduras','Enfierraduras'),         peso:PESOS.trad_enfierraduras,  proto:'pata'},
+    {id:'trad_moldajes',       label:EL('trad_moldajes','Moldajes'),              peso:PESOS.trad_moldajes,       proto:'pata'},
+    {id:'trad_horm_zapata',    label:EL('trad_horm_zapata','Hormigón Zapata'),       peso:PESOS.trad_horm_zapata,    proto:'pata'},
+    {id:'trad_pernos_anclaje', label:EL('trad_pernos_anclaje','Pernos de Anclaje'),     peso:PESOS.trad_pernos_anclaje, proto:'pata'},
+    {id:'trad_horm_pedestal',  label:EL('trad_horm_pedestal','Hormigón Pedestal'),     peso:PESOS.trad_horm_pedestal,  proto:'pata'},
+    {id:'trad_relleno_compact',label:EL('trad_relleno_compact','Relleno y Compactado'),  peso:PESOS.trad_relleno_compact,proto:'pata'},
+    {id:'trad_malla_pat',      label:EL('trad_malla_pat','Malla PAT'),             peso:PESOS.trad_malla_pat,      proto:'pata'},
   ];
 }
 
 function getEtapasGenerales() {
   return [
-    {id:'liberacion',   label:'Liberación Servidumbre',  peso:PESOS.gen_liberacion},
-    {id:'perturbacion', label:'Perturbación Controlada', peso:PESOS.gen_perturbacion},
-    {id:'tala_roce',    label:'Tala y Roce',             peso:PESOS.gen_tala_roce},
-    {id:'accesos',      label:'Construcción Accesos',    peso:PESOS.gen_accesos},
-    {id:'replanteo',    label:'Replanteo y Trazado',     peso:PESOS.gen_replanteo},
-    {id:'malla_tierra', label:'Malla Puesta a Tierra',   peso:PESOS.gen_malla_tierra},
+    {id:'liberacion',   label:EL('gen_liberacion','Liberación Servidumbre'),  peso:PESOS.gen_liberacion},
+    {id:'perturbacion', label:EL('gen_perturbacion','Perturbación Controlada'), peso:PESOS.gen_perturbacion},
+    {id:'tala_roce',    label:EL('gen_tala_roce','Tala y Roce'),             peso:PESOS.gen_tala_roce},
+    {id:'accesos',      label:EL('gen_accesos','Construcción Accesos'),    peso:PESOS.gen_accesos},
+    {id:'replanteo',    label:EL('gen_replanteo','Replanteo y Trazado'),     peso:PESOS.gen_replanteo},
+    {id:'malla_tierra', label:EL('gen_malla_tierra','Malla Puesta a Tierra'),   peso:PESOS.gen_malla_tierra},
   ];
 }
 function getEtapasMontaje() {
   return [
-    {id:'recepcion_material', label:'Recepción Material',    peso:PESOS.mnt_recepcion_material},
-    {id:'prearmado',          label:'Prearmado',             peso:PESOS.mnt_prearmado},
-    {id:'montaje_estructura', label:'Montaje Estructura',    peso:PESOS.mnt_montaje_estructura},
-    {id:'giro_aplome_torque', label:'Giro / Aplome / Torque',peso:PESOS.mnt_giro_aplome_torque},
+    {id:'recepcion_material', label:EL('mnt_recepcion_material','Recepción Material'),    peso:PESOS.mnt_recepcion_material},
+    {id:'prearmado',          label:EL('mnt_prearmado','Prearmado'),             peso:PESOS.mnt_prearmado},
+    {id:'montaje_estructura', label:EL('mnt_montaje_estructura','Montaje Estructura'),    peso:PESOS.mnt_montaje_estructura},
+    {id:'giro_aplome_torque', label:EL('mnt_giro_aplome_torque','Giro / Aplome / Torque'),peso:PESOS.mnt_giro_aplome_torque},
+  ];
+}
+function getEtapasTendido() {
+  return [
+    {id:'tnd_vestido',     label:EL('tnd_vestido','Vestido de Torre'),        peso:PESOS.tnd_vestido},
+    {id:'tnd_perlon',      label:EL('tnd_perlon','Tendido de Perlón'),        peso:PESOS.tnd_perlon},
+    {id:'tnd_conductor',   label:EL('tnd_conductor','Tendido de Conductor'),  peso:PESOS.tnd_conductor},
+    {id:'tnd_remates',     label:EL('tnd_remates','Remates'),                 peso:PESOS.tnd_remates},
+    {id:'tnd_miscelaneos', label:EL('tnd_miscelaneos','Misceláneos'),         peso:PESOS.tnd_miscelaneos},
   ];
 }
 
@@ -1149,6 +1350,7 @@ let avances = {};
 let currentView = 'dashboard';
 let currentTorreId = null;
 let currentVanoId = null;
+let tendidoVanoId = null;
 let filtroSector = null;
 let filtroEstado = null;
 let filtroTramo = null;
@@ -1233,7 +1435,7 @@ function initFirebase() {
     });
     // Escuchar pesos
     db.ref('config/pesos').on('value', snap => {
-      if (snap.val()) { PESOS = snap.val(); localStorage.setItem('pesos_v2', JSON.stringify(PESOS)); }
+      if (snap.val()) { PESOS = Object.assign({}, DEFAULT_PESOS, snap.val()); localStorage.setItem('pesos_v3', JSON.stringify(PESOS)); }
     });
     db.ref('.info/connected').on('value', snap => {
       document.getElementById('offline-banner').style.display = snap.val() ? 'none' : 'block';
@@ -1273,6 +1475,32 @@ function saveSectorTitles() {
 function resetSectorTitles() {
   SECTOR_TITLES = Object.assign({}, DEFAULT_SECTOR_TITLES);
   saveSectorTitles();
+}
+
+// ── NOMBRES DE PARTIDAS (editables desde Configuración) ────────
+// Clave = misma clave usada en PESOS (ej. 'gen_liberacion','mnt_prearmado','tnd_conductor').
+// Si una clave no está en ETAPA_LABELS, se usa el nombre por defecto embebido en cada getEtapasX().
+let ETAPA_LABELS = {};
+function loadEtapaLabels() {
+  try {
+    const s = localStorage.getItem('etapa_labels');
+    if (s) ETAPA_LABELS = JSON.parse(s) || {};
+  } catch {}
+  if (dbReady && db) {
+    db.ref('config/etapa_labels').once('value', snap => {
+      if (snap.val()) ETAPA_LABELS = snap.val();
+    });
+  }
+}
+function saveEtapaLabels() {
+  try { localStorage.setItem('etapa_labels', JSON.stringify(ETAPA_LABELS)); } catch {}
+  if (dbReady && db) db.ref('config/etapa_labels').set(ETAPA_LABELS);
+}
+function resetEtapaLabels() {
+  ETAPA_LABELS = {};
+  saveEtapaLabels();
+  showToast('↺ Nombres de partidas restaurados');
+  renderCurrentView();
 }
 
 const DATOS_EXCEL = {"15": {"liberacion": 1.0, "perturbacion": 1.0, "replanteo": 1.0}, "17": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 0.2, "inst_anclas_p2": 0.2, "inst_anclas_p3": 0.2, "inst_anclas_p4": 0.2}, "18": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0}, "19": {"liberacion": 1.0, "perturbacion": 0.28, "replanteo": 1.0}, "20": {"liberacion": 1.0, "perturbacion": 0.28, "replanteo": 1.0}, "21": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0}, "22": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 0.2, "montaje_cabezal_p2": 0.2, "montaje_cabezal_p3": 0.2, "montaje_cabezal_p4": 0.2}, "23": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 0.8, "replanteo": 1.0}, "24": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0}, "25": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0}, "26": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0}, "27": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0}, "28": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 0.3, "montaje_cabezal_p2": 0.3, "montaje_cabezal_p3": 0.3, "montaje_cabezal_p4": 0.3}, "29": {"liberacion": 1.0, "perturbacion": 1.0, "replanteo": 1.0}, "30": {"liberacion": 1.0, "perturbacion": 1.0, "replanteo": 1.0}, "31": {"liberacion": 1.0, "perturbacion": 1.0, "replanteo": 1.0}, "32": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 0.5, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0}, "33": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0}, "34": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0}, "35": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0}, "36": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 0.5, "replanteo": 1.0, "_fnd": "hormigon", "excavacion_p1": 0.25, "excavacion_p2": 0.25, "excavacion_p3": 0.25, "excavacion_p4": 0.25}, "37": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 0.5, "montaje_cabezal_p2": 0.5, "montaje_cabezal_p3": 0.5, "montaje_cabezal_p4": 0.5}, "38": {"liberacion": 1.0, "perturbacion": 1.0, "replanteo": 1.0}, "39": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0}, "40": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0}, "41": {"liberacion": 1.0, "perturbacion": 1.0, "replanteo": 1.0}, "182": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 0.4, "inst_anclas_h_p2": 0.4, "inst_anclas_h_p3": 0.4, "inst_anclas_h_p4": 0.4, "excavacion_p1": 0.95, "excavacion_p2": 0.95, "excavacion_p3": 0.95, "excavacion_p4": 0.95, "inst_stubs_p1": 0.1, "inst_stubs_p2": 0.1, "inst_stubs_p3": 0.1, "inst_stubs_p4": 0.1}, "183": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0}, "184": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0, "montaje_estructura": 1.0}, "185": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0, "montaje_estructura": 1.0}, "186": {"liberacion": 1.0}, "187": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 0.5, "moldajes_p2": 0.5, "moldajes_p3": 0.5, "moldajes_p4": 0.5, "hormigonado_p1": 0.5, "hormigonado_p2": 0.5, "hormigonado_p3": 0.5, "hormigonado_p4": 0.5}, "188": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 1.0, "moldajes_p2": 1.0, "moldajes_p3": 1.0, "moldajes_p4": 1.0, "hormigonado_p1": 1.0, "hormigonado_p2": 1.0, "hormigonado_p3": 1.0, "hormigonado_p4": 1.0, "recepcion_material": 1.0, "prearmado": 0.15}, "189": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0, "montaje_estructura": 1.0}, "190": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 1.0, "moldajes_p2": 1.0, "moldajes_p3": 1.0, "moldajes_p4": 1.0, "hormigonado_p1": 1.0, "hormigonado_p2": 1.0, "hormigonado_p3": 1.0, "hormigonado_p4": 1.0, "recepcion_material": 1.0, "prearmado": 0.3}, "191": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 1.0, "moldajes_p2": 1.0, "moldajes_p3": 1.0, "moldajes_p4": 1.0, "hormigonado_p1": 1.0, "hormigonado_p2": 1.0, "hormigonado_p3": 1.0, "hormigonado_p4": 1.0, "recepcion_material": 1.0, "prearmado": 0.3}, "192": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 1.0, "moldajes_p2": 1.0, "moldajes_p3": 1.0, "moldajes_p4": 1.0, "hormigonado_p1": 1.0, "hormigonado_p2": 1.0, "hormigonado_p3": 1.0, "hormigonado_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0, "montaje_estructura": 0.3}, "193": {"liberacion": 1.0, "perturbacion": 1.0}, "194": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0, "montaje_estructura": 1.0}, "195": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0, "montaje_estructura": 1.0}, "196": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 1.0, "moldajes_p2": 1.0, "moldajes_p3": 1.0, "moldajes_p4": 1.0, "hormigonado_p1": 1.0, "hormigonado_p2": 1.0, "hormigonado_p3": 1.0, "hormigonado_p4": 1.0, "recepcion_material": 1.0}, "197": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0}, "198": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0}, "202": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 1.0, "moldajes_p2": 1.0, "moldajes_p3": 1.0, "moldajes_p4": 1.0, "hormigonado_p1": 1.0, "hormigonado_p2": 1.0, "hormigonado_p3": 1.0, "hormigonado_p4": 1.0}, "203": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 1.0, "moldajes_p2": 1.0, "moldajes_p3": 1.0, "moldajes_p4": 1.0, "hormigonado_p1": 1.0, "hormigonado_p2": 1.0, "hormigonado_p3": 1.0, "hormigonado_p4": 1.0}, "220": {"liberacion": 1.0}, "221": {"liberacion": 1.0}, "222": {"liberacion": 1.0}, "223": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0, "montaje_estructura": 1.0}, "224": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0, "montaje_estructura": 1.0}, "225": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 0.5, "inst_anclas_h_p2": 0.5, "inst_anclas_h_p3": 0.5, "inst_anclas_h_p4": 0.5, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 0.1, "armadura_zapatas_p2": 0.1, "armadura_zapatas_p3": 0.1, "armadura_zapatas_p4": 0.1}, "226": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0, "recepcion_material": 1.0, "prearmado": 1.0}, "227": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 1.0, "moldajes_p2": 1.0, "moldajes_p3": 1.0, "moldajes_p4": 1.0, "hormigonado_p1": 1.0, "hormigonado_p2": 1.0, "hormigonado_p3": 1.0, "hormigonado_p4": 1.0}, "228": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0}, "229": {"liberacion": 1.0}, "230": {"liberacion": 1.0}, "232": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0}, "233": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0}, "234": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0}, "235": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0}, "236": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0}, "237": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 0.75, "inst_anclas_p2": 0.75, "inst_anclas_p3": 0.75, "inst_anclas_p4": 0.75}, "239": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 0.95, "inst_anclas_h_p2": 0.95, "inst_anclas_h_p3": 0.95, "inst_anclas_h_p4": 0.95, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 0.75, "armadura_zapatas_p2": 0.75, "armadura_zapatas_p3": 0.75, "armadura_zapatas_p4": 0.75, "armadura_vastagos_p1": 0.75, "armadura_vastagos_p2": 0.75, "armadura_vastagos_p3": 0.75, "armadura_vastagos_p4": 0.75, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 0.5, "moldajes_p2": 0.5, "moldajes_p3": 0.5, "moldajes_p4": 0.5, "hormigonado_p1": 0.5, "hormigonado_p2": 0.5, "hormigonado_p3": 0.5, "hormigonado_p4": 0.5}, "240": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "ancla", "trazado_anclas_p1": 1.0, "trazado_anclas_p2": 1.0, "trazado_anclas_p3": 1.0, "trazado_anclas_p4": 1.0, "inst_anclas_p1": 1.0, "inst_anclas_p2": 1.0, "inst_anclas_p3": 1.0, "inst_anclas_p4": 1.0, "montaje_cabezal_p1": 1.0, "montaje_cabezal_p2": 1.0, "montaje_cabezal_p3": 1.0, "montaje_cabezal_p4": 1.0, "grouting_p1": 1.0, "grouting_p2": 1.0, "grouting_p3": 1.0, "grouting_p4": 1.0}, "241": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0}, "242": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "tradicional"}, "243": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "malla_tierra": 0.9, "_fnd": "hormigon", "trazado_h_p1": 1.0, "trazado_h_p2": 1.0, "trazado_h_p3": 1.0, "trazado_h_p4": 1.0, "inst_anclas_h_p1": 1.0, "inst_anclas_h_p2": 1.0, "inst_anclas_h_p3": 1.0, "inst_anclas_h_p4": 1.0, "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 1.0, "moldajes_p2": 1.0, "moldajes_p3": 1.0, "moldajes_p4": 1.0, "hormigonado_p1": 1.0, "hormigonado_p2": 1.0, "hormigonado_p3": 1.0, "hormigonado_p4": 1.0, "recepcion_material": 0.2}, "244": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 1.0, "moldajes_p2": 1.0, "moldajes_p3": 1.0, "moldajes_p4": 1.0, "hormigonado_p1": 1.0, "hormigonado_p2": 1.0, "hormigonado_p3": 1.0, "hormigonado_p4": 1.0}, "245": {"liberacion": 1.0, "perturbacion": 1.0, "accesos": 1.0, "replanteo": 1.0, "_fnd": "hormigon", "excavacion_p1": 1.0, "excavacion_p2": 1.0, "excavacion_p3": 1.0, "excavacion_p4": 1.0, "armadura_zapatas_p1": 1.0, "armadura_zapatas_p2": 1.0, "armadura_zapatas_p3": 1.0, "armadura_zapatas_p4": 1.0, "armadura_vastagos_p1": 1.0, "armadura_vastagos_p2": 1.0, "armadura_vastagos_p3": 1.0, "armadura_vastagos_p4": 1.0, "inst_stubs_p1": 1.0, "inst_stubs_p2": 1.0, "inst_stubs_p3": 1.0, "inst_stubs_p4": 1.0, "moldajes_p1": 1.0, "moldajes_p2": 1.0, "moldajes_p3": 1.0, "moldajes_p4": 1.0, "hormigonado_p1": 1.0, "hormigonado_p2": 1.0, "hormigonado_p3": 1.0, "hormigonado_p4": 1.0, "recepcion_material": 1.0}};
@@ -1416,14 +1644,25 @@ function calcFnd(av) {
 function calcMnt(av) {
   return getEtapasMontaje().reduce((s,e) => s + vv(av,e.id)*e.peso, 0);
 }
+function calcTnd(av) {
+  return getEtapasTendido().reduce((s,e) => s + vv(av,e.id)*e.peso, 0);
+}
 function calcGlobal(av) {
   const gen = getEtapasGenerales().reduce((s,e) => s + vv(av,e.id)*e.peso, 0);
   // Si todavía no se definió tipo de fundación, mostrar al menos el avance general importado desde la planilla.
   if (!av._fnd) return Math.min(1, gen);
-  // Si fundación es N/A, su peso se redistribuye al montaje para no penalizar
-  const fndPeso = av._fnd === 'na' ? 0 : PESOS.global_fnd;
-  const mntPeso = av._fnd === 'na' ? PESOS.global_fnd + PESOS.global_mnt : PESOS.global_mnt;
-  return Math.min(1, gen + calcFnd(av)*fndPeso + calcMnt(av)*mntPeso);
+  const gFnd = PESOS.global_fnd||0, gMnt = PESOS.global_mnt||0, gTnd = PESOS.global_tnd||0;
+  let fndPeso, mntPeso, tndPeso;
+  if (av._fnd === 'na') {
+    // Si fundación es N/A, su peso se redistribuye proporcionalmente entre Montaje y Tendido para no penalizar
+    fndPeso = 0;
+    const resto = gMnt + gTnd;
+    mntPeso = resto > 0 ? gMnt + gFnd*(gMnt/resto) : gMnt;
+    tndPeso = resto > 0 ? gTnd + gFnd*(gTnd/resto) : gTnd;
+  } else {
+    fndPeso = gFnd; mntPeso = gMnt; tndPeso = gTnd;
+  }
+  return Math.min(1, gen + calcFnd(av)*fndPeso + calcMnt(av)*mntPeso + calcTnd(av)*tndPeso);
 }
 // ── ESTADOS DE TORRE ─────────────────────────────────────────
 // isOOCCCivil: fundación 100% (Obras Civiles listas)
@@ -1574,6 +1813,9 @@ function getTorreProtocolos(id) {
   getEtapasMontaje().forEach(e => {
     result.push({label:e.label, key:protoKey(e.id), estado:av[protoKey(e.id)]||'pendiente'});
   });
+  getEtapasTendido().forEach(e => {
+    result.push({label:e.label, key:protoKey(e.id), estado:av[protoKey(e.id)]||'pendiente'});
+  });
   return result;
 }
 
@@ -1601,11 +1843,15 @@ function pctBtns(currentVal, type, id, p, color) {
   const curPct = Math.round((currentVal||0)*100);
   const fn = type==='pata'
     ? `setPataValBtn('${id}',${p},VAL)`
+    : type==='tnd'
+    ? `setTendidoBtn('${id}',VAL)`
     : `setMontajeBtn('${id}',VAL)`;
-  const containerId = type==='pata' ? `patabtn_${id}_p${p}` : `mntbtn_${id}`;
-  const manualId = type==='pata' ? `manual_${id}_p${p}` : `manual_mnt_${id}`;
+  const containerId = type==='pata' ? `patabtn_${id}_p${p}` : type==='tnd' ? `tndbtn_${id}` : `mntbtn_${id}`;
+  const manualId = type==='pata' ? `manual_${id}_p${p}` : type==='tnd' ? `manual_tnd_${id}` : `manual_mnt_${id}`;
   const applyFn = type==='pata'
     ? `applyManual('${id}',${p},'pata')`
+    : type==='tnd'
+    ? `applyManual('${id}',0,'tnd')`
     : `applyManual('${id}',0,'mnt')`;
   return `<div id="${containerId}" class="pct-btns" style="--fnd-color:${col};--fnd-bg:${bg}" data-color="${col}">
     ${steps.map(s => {
@@ -1663,7 +1909,7 @@ function closeModalOutside(e) { if (e.target.id==='modal-overlay') closeModal();
 
 // ── NAVEGACIÓN ────────────────────────────────────────────────
 function getNavState() {
-  return {view:currentView, torre:currentTorreId, vano:currentVanoId, hito:hitoSector, mapa:mapaSector, lista:listaSector, porSector:porSectorTramo};
+  return {view:currentView, torre:currentTorreId, vano:currentVanoId, tendidoVano:tendidoVanoId, hito:hitoSector, mapa:mapaSector, lista:listaSector, porSector:porSectorTramo};
 }
 function pushNavState() {
   if (suppressHistory || !window.history || !history.pushState) return;
@@ -1679,6 +1925,7 @@ function applyNavState(st) {
   currentView = st.view || 'dashboard';
   currentTorreId = st.torre || null;
   currentVanoId = st.vano || null;
+  tendidoVanoId = st.tendidoVano || null;
   hitoSector = st.hito || null;
   mapaSector = st.mapa || null;
   listaSector = st.lista || null;
@@ -1695,12 +1942,13 @@ function goView(v) {
   currentView = v; openPartida = null;
   if (v !== 'detalle') currentTorreId = null;
   if (v !== 'vanoDetalle') currentVanoId = null;
+  if (v !== 'tendidoTramo') tendidoVanoId = null;
   // Actualizar tabs móvil
   document.querySelectorAll('.tab').forEach((b,i) => {
-    b.classList.toggle('active', ['dashboard','mapa','lista','vanos','porSector','matriz','protocolos','hitos','config'][i]===v);
+    b.classList.toggle('active', ['dashboard','mapa','lista','vanos','tendido','porSector','matriz','protocolos','hitos','config'][i]===v);
   });
   // Actualizar sidebar desktop
-  ['dashboard','mapa','lista','vanos','porSector','matriz','protocolos','hitos','config'].forEach(name => {
+  ['dashboard','mapa','lista','vanos','tendido','porSector','matriz','protocolos','hitos','config'].forEach(name => {
     const btn = document.getElementById('sb-'+name);
     if (btn) btn.classList.toggle('active', name===v);
   });
@@ -1732,7 +1980,19 @@ function goVanoDetalle(id) {
   currentVanoId=id; currentView='vanoDetalle'; currentTorreId=null; openPartida=null;
   document.getElementById('main-tabs').classList.add('hidden');
   document.getElementById('lista-filters').classList.add('hidden');
-  ['dashboard','mapa','lista','vanos','porSector','matriz','protocolos','hitos','config'].forEach(name => {
+  ['dashboard','mapa','lista','vanos','tendido','porSector','matriz','protocolos','hitos','config'].forEach(name => {
+    const btn = document.getElementById('sb-'+name);
+    if (btn) btn.classList.remove('active');
+  });
+  renderCurrentView();
+  pushNavState();
+}
+
+function goTendidoTramo(id) {
+  tendidoVanoId=id; currentView='tendidoTramo'; currentTorreId=null; openPartida=null;
+  document.getElementById('main-tabs').classList.add('hidden');
+  document.getElementById('lista-filters').classList.add('hidden');
+  ['dashboard','mapa','lista','vanos','tendido','porSector','matriz','protocolos','hitos','config'].forEach(name => {
     const btn = document.getElementById('sb-'+name);
     if (btn) btn.classList.remove('active');
   });
@@ -1831,9 +2091,11 @@ function renderCurrentView() {
   else if (currentView==='mapa')   c.innerHTML = renderMapa();
   else if (currentView==='lista')  c.innerHTML = renderLista();
   else if (currentView==='vanos') c.innerHTML = renderVanos();
+  else if (currentView==='tendido') c.innerHTML = renderTendido();
   else if (currentView==='porSector') c.innerHTML = renderPorSector();
   else if (currentView==='matriz') c.innerHTML = renderMatriz();
   else if (currentView==='vanoDetalle' && currentVanoId) c.innerHTML = renderVanoDetalle(currentVanoId);
+  else if (currentView==='tendidoTramo' && tendidoVanoId) c.innerHTML = renderTendidoTramo(tendidoVanoId);
   else if (currentView==='protocolos') c.innerHTML = renderProtocolos();
   else if (currentView==='hitos')  c.innerHTML = renderHitos();
   else if (currentView==='config') c.innerHTML = renderConfig();
@@ -1857,6 +2119,181 @@ const VANOS_TENDIDO = [
   {id:'236-241', desde:'236', hasta:'241', nombre:'Vano 236–241'},
   {id:'241-ML', desde:'241', hasta:'245', nombre:'Vano 241–ML'}
 ];
+// Copia de los valores originales (para poder "Restaurar" un vano editado)
+const VANOS_TENDIDO_DEFAULTS = VANOS_TENDIDO.map(v => ({...v}));
+
+// VANO_OVERRIDES: permite editar torre inicio/torre fin/nombre de un vano cuando
+// cambian por condiciones de terreno. Al guardar, las torres del vano se recalculan
+// automáticamente (getVanoTorres filtra TORRES según el nuevo desde/hasta).
+let VANO_OVERRIDES = {};
+// VANOS_CUSTOM: vanos agregados manualmente por el usuario (no vienen de la ingeniería
+// original). Se guardan aparte para poder reconstruir VANOS_TENDIDO = defaults + custom,
+// y para saber cuáles se pueden eliminar por completo.
+let VANOS_CUSTOM = [];
+function esVanoCustom(id) { return !VANOS_TENDIDO_DEFAULTS.find(x=>x.id===id); }
+// Reconstruye el arreglo VANOS_TENDIDO (mismo objeto, en el sitio, ya que muchas
+// funciones lo referencian directamente) a partir de los defaults + los vanos
+// agregados manualmente, y vuelve a aplicar las ediciones (VANO_OVERRIDES) encima.
+function rebuildVanosTendido() {
+  const merged = VANOS_TENDIDO_DEFAULTS.map(v => ({...v}));
+  VANOS_CUSTOM.forEach(c => { if (!merged.find(m=>m.id===c.id)) merged.push({...c}); });
+  VANOS_TENDIDO.length = 0;
+  merged.forEach(v => VANOS_TENDIDO.push(v));
+  applyVanoOverrides();
+}
+function applyVanoOverrides() {
+  Object.keys(VANO_OVERRIDES).forEach(id => {
+    const v = VANOS_TENDIDO.find(x=>x.id===id);
+    if (v) Object.assign(v, VANO_OVERRIDES[id]);
+  });
+}
+function loadVanoOverrides() {
+  try {
+    const s = localStorage.getItem('vano_overrides');
+    if (s) VANO_OVERRIDES = JSON.parse(s) || {};
+  } catch {}
+  try {
+    const s2 = localStorage.getItem('vanos_custom');
+    if (s2) VANOS_CUSTOM = JSON.parse(s2) || [];
+  } catch {}
+  rebuildVanosTendido();
+  if (dbReady && db) {
+    db.ref('config/vano_overrides').on('value', snap => {
+      VANO_OVERRIDES = snap.val() || {};
+      rebuildVanosTendido();
+      renderCurrentView();
+    });
+    db.ref('config/vanos_custom').on('value', snap => {
+      const val = snap.val();
+      VANOS_CUSTOM = Array.isArray(val) ? val : (val ? Object.values(val) : []);
+      rebuildVanosTendido();
+      renderCurrentView();
+    });
+  }
+}
+function saveVanoOverrides() {
+  try { localStorage.setItem('vano_overrides', JSON.stringify(VANO_OVERRIDES)); } catch {}
+  if (dbReady && db) db.ref('config/vano_overrides').set(VANO_OVERRIDES);
+}
+function saveVanosCustom() {
+  try { localStorage.setItem('vanos_custom', JSON.stringify(VANOS_CUSTOM)); } catch {}
+  if (dbReady && db) db.ref('config/vanos_custom').set(VANOS_CUSTOM);
+}
+function abrirEditarVano(id, ev) {
+  if (ev) ev.stopPropagation();
+  const v = VANOS_TENDIDO.find(x=>x.id===id);
+  if (!v) return;
+  const custom = esVanoCustom(id);
+  const html = `
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:12px">Ajusta la torre inicio y la torre fin si el vano cambió por condiciones de terreno. Las torres involucradas se recalculan automáticamente.</div>
+    <div class="form-group">
+      <label class="form-label">Nombre del vano</label>
+      <input id="vn-nombre" class="form-input" style="width:100%" value="${v.nombre}"/>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="form-group">
+        <label class="form-label">Torre inicio</label>
+        <input id="vn-desde" class="form-input" style="width:100%" value="${v.desde}"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Torre fin</label>
+        <input id="vn-hasta" class="form-input" style="width:100%" value="${v.hasta}"/>
+      </div>
+    </div>
+    <button class="action-btn btn-primary" onclick="guardarVano('${id}')">💾 Guardar vano</button>
+    ${custom
+      ? `<button class="action-btn btn-secondary" onclick="eliminarVanoManual('${id}')" style="color:#e11d48;border-color:#e11d48">🗑️ Eliminar tramo</button>`
+      : `<button class="action-btn btn-secondary" onclick="resetVano('${id}')">↺ Restaurar valores originales</button>`}
+    <button class="action-btn btn-secondary" onclick="closeModal()">Cancelar</button>`;
+  openModal('✏️ Editar Vano', html);
+}
+function guardarVano(id) {
+  const v = VANOS_TENDIDO.find(x=>x.id===id);
+  if (!v) { closeModal(); return; }
+  const nombre = (document.getElementById('vn-nombre').value||'').trim();
+  const desde = (document.getElementById('vn-desde').value||'').trim();
+  const hasta = (document.getElementById('vn-hasta').value||'').trim();
+  if (!desde || !hasta) { showToast('⚠️ Debes indicar torre inicio y torre fin'); return; }
+  v.nombre = nombre || v.nombre;
+  v.desde = desde;
+  v.hasta = hasta;
+  if (esVanoCustom(id)) {
+    // Para un vano agregado manualmente, el nombre/desde/hasta se guardan directo
+    // en su definición (VANOS_CUSTOM), no como "override" sobre un default.
+    const c = VANOS_CUSTOM.find(x=>x.id===id);
+    if (c) { c.nombre=v.nombre; c.desde=v.desde; c.hasta=v.hasta; }
+    saveVanosCustom();
+  } else {
+    VANO_OVERRIDES[id] = {nombre:v.nombre, desde:v.desde, hasta:v.hasta};
+    saveVanoOverrides();
+  }
+  closeModal();
+  showToast('✅ Vano actualizado');
+  renderCurrentView();
+}
+function resetVano(id) {
+  const def = VANOS_TENDIDO_DEFAULTS.find(x=>x.id===id);
+  const v = VANOS_TENDIDO.find(x=>x.id===id);
+  if (def && v) Object.assign(v, def);
+  delete VANO_OVERRIDES[id];
+  saveVanoOverrides();
+  closeModal();
+  showToast('↺ Vano restaurado');
+  renderCurrentView();
+}
+// Abre el modal para crear un nuevo tramo/vano manualmente (ej: un vano no
+// contemplado originalmente por ingeniería, o una subdivisión adicional).
+function abrirAgregarVano() {
+  const html = `
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:12px">Crea un nuevo tramo indicando su torre inicio y torre fin. Las torres involucradas se calculan automáticamente según su numeración.</div>
+    <div class="form-group">
+      <label class="form-label">Nombre del vano</label>
+      <input id="vn-new-nombre" class="form-input" style="width:100%" placeholder="Ej: Vano 45–48"/>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="form-group">
+        <label class="form-label">Torre inicio</label>
+        <input id="vn-new-desde" class="form-input" style="width:100%" placeholder="Ej: 45"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Torre fin</label>
+        <input id="vn-new-hasta" class="form-input" style="width:100%" placeholder="Ej: 48"/>
+      </div>
+    </div>
+    <button class="action-btn btn-primary" onclick="guardarVanoNuevo()">➕ Crear tramo</button>
+    <button class="action-btn btn-secondary" onclick="closeModal()">Cancelar</button>`;
+  openModal('➕ Agregar Tramo de Tendido', html);
+}
+function guardarVanoNuevo() {
+  const nombre = (document.getElementById('vn-new-nombre').value||'').trim();
+  const desde = (document.getElementById('vn-new-desde').value||'').trim();
+  const hasta = (document.getElementById('vn-new-hasta').value||'').trim();
+  if (!desde || !hasta) { showToast('⚠️ Debes indicar torre inicio y torre fin'); return; }
+  let id = `${desde}-${hasta}`;
+  // Evitar colisión de id con un vano existente (default o custom)
+  if (VANOS_TENDIDO.find(x=>x.id===id)) id = `${desde}-${hasta}-${Date.now()}`;
+  const nuevo = { id, desde, hasta, nombre: nombre || `Vano ${desde}–${hasta}` };
+  VANOS_CUSTOM.push(nuevo);
+  saveVanosCustom();
+  rebuildVanosTendido();
+  closeModal();
+  showToast('✅ Tramo agregado');
+  renderCurrentView();
+}
+function eliminarVanoManual(id) {
+  if (!esVanoCustom(id)) { showToast('⚠️ Solo se pueden eliminar tramos agregados manualmente'); return; }
+  if (!confirm('¿Eliminar este tramo agregado manualmente? Esta acción no se puede deshacer.')) return;
+  VANOS_CUSTOM = VANOS_CUSTOM.filter(x=>x.id!==id);
+  saveVanosCustom();
+  delete VANO_OVERRIDES[id];
+  saveVanoOverrides();
+  rebuildVanosTendido();
+  closeModal();
+  showToast('🗑️ Tramo eliminado');
+  if (currentView==='vanoDetalle' && currentVanoId===id) goView('vanos');
+  else if (currentView==='tendidoTramo' && tendidoVanoId===id) goView('tendido');
+  else renderCurrentView();
+}
 function getVanoTorres(vano) {
   const a=parseFloat(vano.desde), b=parseFloat(vano.hasta);
   return TORRES.filter(t=>{ const n=parseFloat(t.id); return !isNaN(n) && n>=a && n<=b; })
@@ -1865,24 +2302,27 @@ function getVanoTorres(vano) {
 function calcVano(vano) {
   const torres = getVanoTorres(vano);
   const total = torres.length || 1;
-  let fndSum=0, mntSum=0, globalSum=0, fndOk=0, mntOk=0, restricciones=0, configuradas=0;
+  let fndSum=0, mntSum=0, tndSum=0, globalSum=0, fndOk=0, mntOk=0, tndOk=0, restricciones=0, configuradas=0;
   torres.forEach(t=>{
     const av=avances[t.id]||{};
     if (av._fnd) configuradas++;
-    const f=av._fnd?calcFnd(av):0, m=av._fnd?calcMnt(av):0, g=av._fnd?calcGlobal(av):0;
-    fndSum+=f; mntSum+=m; globalSum+=g;
+    const f=av._fnd?calcFnd(av):0, m=av._fnd?calcMnt(av):0, tn=av._fnd?calcTnd(av):0, g=av._fnd?calcGlobal(av):0;
+    fndSum+=f; mntSum+=m; tndSum+=tn; globalSum+=g;
     if (f>=0.999) fndOk++;
     if (m>=0.999) mntOk++;
+    if (tn>=0.999) tndOk++;
     if (isImpedimento(av)) restricciones++;
   });
-  const fndPct=pct(fndSum/total), mntPct=pct(mntSum/total), globalPct=pct(globalSum/total);
+  const fndPct=pct(fndSum/total), mntPct=pct(mntSum/total), tndPct=pct(tndSum/total), globalPct=pct(globalSum/total);
   let estado='Sin iniciar', color='#64748b';
   if (restricciones>0) { estado='Con restricción'; color='#e11d48'; }
-  else if (mntOk===torres.length && torres.length>0) { estado='Montaje terminado'; color='#059669'; }
+  else if (tndOk===torres.length && torres.length>0) { estado='Tendido terminado'; color='#059669'; }
+  else if (tndSum>0) { estado='Tendido en ejecución'; color='#0ea5e9'; }
+  else if (mntOk===torres.length && torres.length>0) { estado='Listo para tendido'; color='#f59e0b'; }
   else if (mntSum>0) { estado='Montaje en ejecución'; color='#f59e0b'; }
   else if (fndOk===torres.length && torres.length>0) { estado='Listo para montaje'; color='#0891b2'; }
   else if (fndSum>0) { estado='Fundaciones en ejecución'; color='#2563eb'; }
-  return {torres,total,configuradas,fndPct,mntPct,globalPct,fndOk,mntOk,restricciones,estado,color};
+  return {torres,total,configuradas,fndPct,mntPct,tndPct,globalPct,fndOk,mntOk,tndOk,restricciones,estado,color};
 }
 function renderMatriz() {
   const torres = TORRES.slice().sort((a,b)=>{
@@ -1979,14 +2419,19 @@ function renderVanos() {
   const cards = VANOS_TENDIDO.map(v=>{
     const r=calcVano(v);
     const tramo = parseFloat(v.desde)>=181 ? 'Isla' : 'Continente';
+    const custom = esVanoCustom(v.id);
     return `<div onclick="goVanoDetalle('${v.id}')" style="background:#fff;border:1px solid #dbe3ef;border-left:5px solid ${r.color};border-radius:14px;padding:14px 16px;cursor:pointer;box-shadow:0 1px 3px rgba(15,23,42,.06)">
       <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-        <div><div style="font-size:17px;font-weight:900;color:#0f172a">${v.nombre}</div><div style="font-size:11px;color:#64748b;margin-top:2px">${tramo} · ${r.total} torres involucradas</div></div>
-        <div style="text-align:right"><div style="font-size:22px;font-weight:900;color:${r.color}">${r.globalPct}%</div><div style="font-size:10px;color:${r.color};font-weight:800">${r.estado}</div></div>
+        <div><div style="font-size:17px;font-weight:900;color:#0f172a">${v.nombre}${custom?' <span style="font-size:10px;font-weight:800;color:#7c3aed;background:#7c3aed22;border-radius:6px;padding:2px 6px;vertical-align:middle">Manual</span>':''}</div><div style="font-size:11px;color:#64748b;margin-top:2px">${tramo} · Torres ${v.desde}–${v.hasta} · ${r.total} torres involucradas</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="text-align:right"><div style="font-size:22px;font-weight:900;color:${r.color}">${r.globalPct}%</div><div style="font-size:10px;color:${r.color};font-weight:800">${r.estado}</div></div>
+          <button onclick="abrirEditarVano('${v.id}',event)" title="Editar vano" style="background:#f8fafc;border:1px solid #dbe3ef;border-radius:8px;padding:6px 8px;font-size:12px;cursor:pointer">✏️</button>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:12px">
         <div style="font-size:11px;color:#64748b">Fundaciones<br><b style="color:#0f172a">${r.fndPct}%</b></div>
         <div style="font-size:11px;color:#64748b">Montaje<br><b style="color:#0f172a">${r.mntPct}%</b></div>
+        <div style="font-size:11px;color:#64748b">Tendido<br><b style="color:#0f172a">${r.tndPct}%</b></div>
         <div style="font-size:11px;color:#64748b">Restricciones<br><b style="color:${r.restricciones?'#e11d48':'#0f172a'}">${r.restricciones}</b></div>
       </div>
       <div class="bar-wrap" style="height:8px;margin-top:10px;background:#e8edf5"><div class="bar-fill" style="width:${r.globalPct}%;background:${r.color};height:100%"></div></div>
@@ -1995,8 +2440,11 @@ function renderVanos() {
   return `<div style="padding-bottom:40px">
     <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:20px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
-        <div><div style="font-size:20px;font-weight:900;color:#0f172a">Vanos de Tendido</div><div style="font-size:12px;color:#64748b;margin-top:3px">Vanos reales definidos por ingeniería. Haz clic en un vano para revisar el estado de sus torres.</div></div>
-        <div style="font-size:12px;color:#64748b;background:#f8fafc;border:1px solid #dbe3ef;border-radius:10px;padding:8px 12px">${VANOS_TENDIDO.length} vanos registrados</div>
+        <div><div style="font-size:20px;font-weight:900;color:#0f172a">Vanos de Tendido</div><div style="font-size:12px;color:#64748b;margin-top:3px">Vanos reales definidos por ingeniería. Toca ✏️ para editar la torre inicio/fin de un vano (por cambios de terreno) — las torres involucradas se recalculan solas. Haz clic en la tarjeta para ver el detalle.</div></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div style="font-size:12px;color:#64748b;background:#f8fafc;border:1px solid #dbe3ef;border-radius:10px;padding:8px 12px">${VANOS_TENDIDO.length} vanos registrados</div>
+          <button onclick="abrirAgregarVano()" class="action-btn btn-primary" style="width:auto;padding:8px 14px;font-size:12px">➕ Agregar tramo</button>
+        </div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">${cards}</div>
@@ -2007,13 +2455,14 @@ function renderVanoDetalle(id) {
   const r = calcVano(vano);
   const rows = r.torres.map(t=>{
     const av=avances[t.id]||{};
-    const f=av._fnd?calcFnd(av):0, m=av._fnd?calcMnt(av):0, g=av._fnd?calcGlobal(av):0;
+    const f=av._fnd?calcFnd(av):0, m=av._fnd?calcMnt(av):0, tn=av._fnd?calcTnd(av):0, g=av._fnd?calcGlobal(av):0;
     const si=statusInfo(av);
     return `<tr onclick="goDetalle('${t.id}')" style="cursor:pointer;border-bottom:1px solid #e2e8f0">
       <td style="padding:10px;font-weight:900;color:#0f172a">T${t.id}</td>
       <td style="padding:10px;color:#64748b">${t.tipo}<br><span style="font-size:10px">${t.modelo||'—'}</span></td>
       <td style="padding:10px"><span style="font-weight:900;color:#0891b2">${pct(f)}%</span></td>
       <td style="padding:10px"><span style="font-weight:900;color:#16a34a">${pct(m)}%</span></td>
+      <td style="padding:10px"><span style="font-weight:900;color:#0ea5e9">${pct(tn)}%</span></td>
       <td style="padding:10px"><span style="font-weight:900;color:#f59e0b">${pct(g)}%</span></td>
       <td style="padding:10px"><span style="font-size:10px;font-weight:800;color:${si.c};background:${si.c}22;border-radius:6px;padding:3px 8px">${si.label}</span></td>
       <td style="padding:10px;color:${isImpedimento(av)?'#e11d48':'#64748b'};font-weight:800">${isImpedimento(av)?'Sí':'No'}</td>
@@ -2023,22 +2472,211 @@ function renderVanoDetalle(id) {
     <button class="back-btn" onclick="goBack()">← Volver</button>
     <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:20px">
       <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
-        <div><div style="font-size:22px;font-weight:900;color:#0f172a">${vano.nombre}</div><div style="font-size:12px;color:#64748b;margin-top:2px">Torres ${vano.desde} a ${vano.id.endsWith('ML')?'ML':vano.hasta} · ${r.total} torres involucradas</div></div>
-        <div style="text-align:right"><div style="font-size:28px;font-weight:900;color:${r.color}">${r.globalPct}%</div><div style="font-size:11px;color:${r.color};font-weight:900">${r.estado}</div></div>
+        <div><div style="font-size:22px;font-weight:900;color:#0f172a">${vano.nombre}</div><div style="font-size:12px;color:#64748b;margin-top:2px">Torres ${vano.desde} a ${vano.hasta} · ${r.total} torres involucradas</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="text-align:right"><div style="font-size:28px;font-weight:900;color:${r.color}">${r.globalPct}%</div><div style="font-size:11px;color:${r.color};font-weight:900">${r.estado}</div></div>
+          <button onclick="abrirEditarVano('${vano.id}')" title="Editar vano" style="background:#f8fafc;border:1px solid #dbe3ef;border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer">✏️ Editar</button>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px">
         <div class="kpi"><div class="kpi-val" style="color:#0891b2">${r.fndPct}%</div><div class="kpi-label">Fundaciones</div><div class="kpi-sub">${r.fndOk}/${r.total} terminadas</div></div>
         <div class="kpi"><div class="kpi-val" style="color:#16a34a">${r.mntPct}%</div><div class="kpi-label">Montaje</div><div class="kpi-sub">${r.mntOk}/${r.total} terminadas</div></div>
+        <div class="kpi"><div class="kpi-val" style="color:#0ea5e9">${r.tndPct}%</div><div class="kpi-label">Tendido</div><div class="kpi-sub">${r.tndOk}/${r.total} terminadas</div></div>
         <div class="kpi"><div class="kpi-val" style="color:#e11d48">${r.restricciones}</div><div class="kpi-label">Restricciones</div><div class="kpi-sub">Torres con impedimento</div></div>
       </div>
     </div>
     <div class="card" style="border:1px solid #dbe3ef;padding:0;overflow:hidden">
       <div style="padding:14px 16px;border-bottom:1px solid #e2e8f0;font-size:15px;font-weight:900;color:#0f172a">Estado de torres del vano</div>
-      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead style="background:#f8fafc;color:#64748b;text-align:left"><tr><th style="padding:10px">Torre</th><th style="padding:10px">Tipo</th><th style="padding:10px">Fnd.</th><th style="padding:10px">Montaje</th><th style="padding:10px">Global</th><th style="padding:10px">Estado</th><th style="padding:10px">Restr.</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead style="background:#f8fafc;color:#64748b;text-align:left"><tr><th style="padding:10px">Torre</th><th style="padding:10px">Tipo</th><th style="padding:10px">Fnd.</th><th style="padding:10px">Montaje</th><th style="padding:10px">Tendido</th><th style="padding:10px">Global</th><th style="padding:10px">Estado</th><th style="padding:10px">Restr.</th></tr></thead><tbody>${rows}</tbody></table></div>
     </div>
   </div>`;
 }
 
+// ── TENDIDO POR TRAMO ────────────────────────────────────────
+// Vista dedicada de Tendido, organizada por tramo (reutiliza VANOS_TENDIDO).
+// A diferencia de calcVano() (que exige _fnd configurado para contar avance),
+// aquí el avance de tendido se calcula siempre a partir de calcTnd(av), para que
+// se pueda registrar vestido/perlón/conductor/remates aunque la fundación aún
+// no se haya tipificado en la torre.
+function calcTendidoTramo(vano) {
+  const torres = getVanoTorres(vano);
+  const total = torres.length || 1;
+  const anclajes = torres.filter(t => (t.tipo||'').includes('Anclaje'));
+  const remTotal = anclajes.length || 1;
+  let vestidoSum=0, perlonSum=0, conductorSum=0, miscSum=0, remSum=0, tndSum=0;
+  let vestidoOk=0, tndOk=0;
+  torres.forEach(t=>{
+    const av = avances[t.id]||{};
+    const v = vv(av,'tnd_vestido');
+    vestidoSum += v;
+    if (v>=0.999) vestidoOk++;
+    perlonSum += vv(av,'tnd_perlon');
+    conductorSum += vv(av,'tnd_conductor');
+    miscSum += vv(av,'tnd_miscelaneos');
+    const tn = calcTnd(av);
+    tndSum += tn;
+    if (tn>=0.999) tndOk++;
+  });
+  anclajes.forEach(t=>{ remSum += vv(avances[t.id]||{}, 'tnd_remates'); });
+
+  let estado='Sin iniciar', color='#64748b';
+  if (tndOk===torres.length && torres.length>0) { estado='Tendido terminado'; color='#059669'; }
+  else if (tndSum>0) { estado='Tendido en ejecución'; color='#0ea5e9'; }
+  else if (vestidoOk===torres.length && torres.length>0) { estado='Listo para perlonear'; color='#f59e0b'; }
+  else if (vestidoSum>0) { estado='Vestido en ejecución'; color='#f59e0b'; }
+
+  return {
+    torres, total, anclajes, remTotal,
+    vestidoPct: pct(vestidoSum/total), perlonPct: pct(perlonSum/total),
+    conductorPct: pct(conductorSum/total), miscPct: pct(miscSum/total),
+    remPct: pct(remSum/remTotal), tndPct: pct(tndSum/total),
+    vestidoOk, tndOk, estado, color
+  };
+}
+
+// Botonera de "aplicar a todo el tramo de una vez" — usada para perlón, conductor,
+// remates (solo torres de anclaje) y misceláneos. No refleja un único "valor actual"
+// (cada torre puede tener un % distinto), así que no marca botón activo.
+function bulkTndBtns(vanoId, key, color) {
+  const steps = [0,25,50,75,100];
+  return `<div class="pct-btns" style="--fnd-color:${color};--fnd-bg:${color}22">
+    ${steps.map(s => `<button class="pct-btn" onclick="aplicarTendidoTramo('${vanoId}','${key}',${s})"
+      style="border-color:${color}55;color:${color}">${s===100?'✓':s+'%'}</button>`).join('')}
+  </div>`;
+}
+
+function aplicarTendidoTramo(vanoId, key, val) {
+  const vano = VANOS_TENDIDO.find(v=>v.id===vanoId);
+  if (!vano) return;
+  const numVal = val/100;
+  let torres = getVanoTorres(vano);
+  const soloAnclaje = key === 'tnd_remates';
+  if (soloAnclaje) torres = torres.filter(t => (t.tipo||'').includes('Anclaje'));
+  torres.forEach(t => {
+    if (!avances[t.id]) avances[t.id] = {};
+    avances[t.id][key] = numVal;
+  });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(avances)); } catch {}
+  torres.forEach(t => saveAvance(t.id));
+  showToast(`✅ Aplicado a ${torres.length} torre${torres.length===1?'':'s'} del tramo`);
+  renderCurrentView();
+}
+
+// Setter de vestido por torre individual (independiente de currentTorreId, ya que
+// esta vista no está dentro del detalle de una torre).
+function setTendidoTorre(torreId, key, pctVal) {
+  const numVal = pctVal/100;
+  if (!avances[torreId]) avances[torreId] = {};
+  avances[torreId][key] = numVal;
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(avances)); } catch {}
+  saveAvanceDebounced(torreId);
+  renderCurrentView();
+}
+
+function vestidoTorreBtns(torreId, curVal) {
+  const steps = [0,25,50,75,100];
+  const curPct = Math.round((curVal||0)*100);
+  const color = '#f59e0b';
+  return `<div class="pct-btns" style="--fnd-color:${color};--fnd-bg:${color}22">
+    ${steps.map(s => {
+      const isActive = s===curPct;
+      return `<button class="pct-btn${isActive?' active':''}" onclick="setTendidoTorre('${torreId}','tnd_vestido',${s})"
+        style="${isActive?`border-color:${color};background:${color}22;color:${color}`:`border-color:${color}55;color:${color}`}">${s===100?'✓':s+'%'}</button>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderTendido() {
+  const cards = VANOS_TENDIDO.map(v=>{
+    const r = calcTendidoTramo(v);
+    const tramo = parseFloat(v.desde)>=181 ? 'Isla' : 'Continente';
+    const custom = esVanoCustom(v.id);
+    return `<div onclick="goTendidoTramo('${v.id}')" style="background:#fff;border:1px solid #dbe3ef;border-left:5px solid ${r.color};border-radius:14px;padding:14px 16px;cursor:pointer;box-shadow:0 1px 3px rgba(15,23,42,.06)">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+        <div><div style="font-size:17px;font-weight:900;color:#0f172a">${v.nombre}${custom?' <span style="font-size:10px;font-weight:800;color:#7c3aed;background:#7c3aed22;border-radius:6px;padding:2px 6px;vertical-align:middle">Manual</span>':''}</div><div style="font-size:11px;color:#64748b;margin-top:2px">${tramo} · Torres ${v.desde}–${v.hasta} · ${r.total} torres</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="text-align:right"><div style="font-size:22px;font-weight:900;color:${r.color}">${r.tndPct}%</div><div style="font-size:10px;color:${r.color};font-weight:800">${r.estado}</div></div>
+          <button onclick="abrirEditarVano('${v.id}',event)" title="Editar vano" style="background:#f8fafc;border:1px solid #dbe3ef;border-radius:8px;padding:6px 8px;font-size:12px;cursor:pointer">✏️</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px">
+        <div style="font-size:10px;color:#64748b">Vestido<br><b style="color:#0f172a">${r.vestidoPct}%</b></div>
+        <div style="font-size:10px;color:#64748b">Perlón<br><b style="color:#0f172a">${r.perlonPct}%</b></div>
+        <div style="font-size:10px;color:#64748b">Conductor<br><b style="color:#0f172a">${r.conductorPct}%</b></div>
+        <div style="font-size:10px;color:#64748b">Remates<br><b style="color:#0f172a">${r.remPct}%</b></div>
+        <div style="font-size:10px;color:#64748b">Misc.<br><b style="color:#0f172a">${r.miscPct}%</b></div>
+      </div>
+      <div class="bar-wrap" style="height:8px;margin-top:10px;background:#e8edf5"><div class="bar-fill" style="width:${r.tndPct}%;background:${r.color};height:100%"></div></div>
+    </div>`;
+  }).join('');
+  return `<div style="padding-bottom:40px">
+    <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div><div style="font-size:20px;font-weight:900;color:#0f172a">🔌 Tendido</div><div style="font-size:12px;color:#64748b;margin-top:3px">Seguimiento de tendido organizado por tramo. Entra a un tramo para registrar el vestido de cada torre y aplicar perlón, conductor, remates y misceláneos al tramo completo.</div></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div style="font-size:12px;color:#64748b;background:#f8fafc;border:1px solid #dbe3ef;border-radius:10px;padding:8px 12px">${VANOS_TENDIDO.length} tramos</div>
+          <button onclick="abrirAgregarVano()" class="action-btn btn-primary" style="width:auto;padding:8px 14px;font-size:12px">➕ Agregar tramo</button>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">${cards}</div>
+  </div>`;
+}
+
+function renderTendidoTramo(id) {
+  const vano = VANOS_TENDIDO.find(v=>v.id===id) || VANOS_TENDIDO[0];
+  const r = calcTendidoTramo(vano);
+
+  const bulkRow = (key, label, color, soloAnclaje) => `
+    <div style="padding:14px 16px;border-bottom:1px solid #e2e8f0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:800;color:#0f172a">${label}${soloAnclaje?' <span style="font-weight:600;color:#94a3b8;font-size:11px">(solo torres de anclaje)</span>':''}</div>
+        <div style="font-size:13px;font-weight:900;color:${color}">${key==='tnd_remates'?r.remPct:key==='tnd_perlon'?r.perlonPct:key==='tnd_conductor'?r.conductorPct:r.miscPct}%</div>
+      </div>
+      ${bulkTndBtns(vano.id, key, color)}
+    </div>`;
+
+  const vestidoRows = r.torres.map(t=>{
+    const av = avances[t.id]||{};
+    const v = vv(av,'tnd_vestido');
+    return `<tr style="border-bottom:1px solid #e2e8f0">
+      <td style="padding:10px;font-weight:900;color:#0f172a;white-space:nowrap">T${t.id}</td>
+      <td style="padding:10px;color:#64748b;font-size:11px;white-space:nowrap">${t.tipo}</td>
+      <td style="padding:10px">${vestidoTorreBtns(t.id, v)}</td>
+      <td style="padding:10px;text-align:right"><button onclick="goDetalle('${t.id}')" style="background:#f8fafc;border:1px solid #dbe3ef;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer;white-space:nowrap">Ver torre →</button></td>
+    </tr>`;
+  }).join('');
+
+  return `<div style="padding-bottom:40px">
+    <button class="back-btn" onclick="goBack()">← Volver</button>
+    <div class="card" style="border:1px solid #dbe3ef;margin-bottom:14px;padding:20px">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+        <div><div style="font-size:22px;font-weight:900;color:#0f172a">🔌 ${vano.nombre}</div><div style="font-size:12px;color:#64748b;margin-top:2px">Torres ${vano.desde} a ${vano.hasta} · ${r.total} torres · ${r.anclajes.length} de anclaje</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="text-align:right"><div style="font-size:28px;font-weight:900;color:${r.color}">${r.tndPct}%</div><div style="font-size:11px;color:${r.color};font-weight:900">${r.estado}</div></div>
+          <button onclick="abrirEditarVano('${vano.id}')" title="Editar vano" style="background:#f8fafc;border:1px solid #dbe3ef;border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer">✏️ Editar</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px">
+        <div class="kpi"><div class="kpi-val" style="color:#f59e0b">${r.vestidoPct}%</div><div class="kpi-label">Vestido</div><div class="kpi-sub">${r.vestidoOk}/${r.total} torres</div></div>
+        <div class="kpi"><div class="kpi-val" style="color:#0ea5e9">${r.perlonPct}%</div><div class="kpi-label">Perlón</div></div>
+        <div class="kpi"><div class="kpi-val" style="color:#2563eb">${r.conductorPct}%</div><div class="kpi-label">Conductor</div></div>
+        <div class="kpi"><div class="kpi-val" style="color:#7c3aed">${r.remPct}%</div><div class="kpi-label">Remates</div><div class="kpi-sub">${r.anclajes.length} anclajes</div></div>
+      </div>
+    </div>
+    <div class="card" style="border:1px solid #dbe3ef;padding:0;overflow:hidden;margin-bottom:14px">
+      <div style="padding:14px 16px;border-bottom:1px solid #e2e8f0;font-size:15px;font-weight:900;color:#0f172a">Aplicar al tramo completo</div>
+      ${bulkRow('tnd_perlon','Tendido de Perlón','#0ea5e9',false)}
+      ${bulkRow('tnd_conductor','Tendido de Conductor','#2563eb',false)}
+      ${bulkRow('tnd_remates','Remates','#7c3aed',true)}
+      ${bulkRow('tnd_miscelaneos','Misceláneos','#64748b',false)}
+    </div>
+    <div class="card" style="border:1px solid #dbe3ef;padding:0;overflow:hidden">
+      <div style="padding:14px 16px;border-bottom:1px solid #e2e8f0;font-size:15px;font-weight:900;color:#0f172a">Vestido de torre — por torre individual</div>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead style="background:#f8fafc;color:#64748b;text-align:left"><tr><th style="padding:10px">Torre</th><th style="padding:10px">Tipo</th><th style="padding:10px">Vestido</th><th style="padding:10px"></th></tr></thead><tbody>${vestidoRows}</tbody></table></div>
+    </div>
+  </div>`;
+}
 
 // ── HITOS MULTABLES ─────────────────────────────────────────
 
@@ -2068,13 +2706,20 @@ function calcHitoAvanceTorres(hito) {
       torres = TORRES.filter(t => ['3C','4A','4B'].includes(String(t.id)));
     else
       torres = TORRES.filter(t => t.tramo === 'cruce');
+  } else if (hito.tramo === 'elecnor') {
+    // Elecnor aún no tiene un rango de torres fijo asignado en la app: el avance
+    // se calcula automáticamente a partir de las torres cuyo contratista se marque como "Elecnor".
+    torres = TORRES.filter(t => t.contratista === 'Elecnor');
+  } else if (hito.tramo === 'pine') {
+    // PINE ejecuta obras de subestación, que no se modelan como "torres" en esta app.
+    torres = TORRES.filter(t => t.sector === 'Subestación' || t.tramo === 'subestacion');
   }
   if (!torres.length) return null;
   let terminadas=0, proceso=0, pendientes=0;
   torres.forEach(t => {
     const av = avances[t.id]||{};
     if (!av._fnd) { pendientes++; return; }
-    const val = hito.tipo==='fundacion' ? calcFnd(av) : hito.tipo==='montaje' ? calcMnt(av) : -1;
+    const val = hito.tipo==='fundacion' ? calcFnd(av) : hito.tipo==='montaje' ? calcMnt(av) : hito.tipo==='tendido' ? calcTnd(av) : -1;
     if (val < 0) { pendientes++; return; }
     if (val >= 0.999) terminadas++;
     else if (val > 0) proceso++;
@@ -2130,7 +2775,7 @@ function getSectorStats(key) {
 
 function renderHitoDetail(hito) {
   const est = calcHitoEstado(hito);
-  const avInfo = (hito.tipo==='fundacion'||hito.tipo==='montaje') ? calcHitoAvanceTorres(hito) : null;
+  const avInfo = (hito.tipo==='fundacion'||hito.tipo==='montaje'||hito.tipo==='tendido') ? calcHitoAvanceTorres(hito) : null;
   const metaOk = avInfo && avInfo.pct >= hito.meta_pct;
   const circleColor = est.color;
 
@@ -2152,12 +2797,12 @@ function renderHitoDetail(hito) {
           </span>
           <button onclick="editarHitoFecha('${hito.tramo}',${hito.n})"
             style="font-size:9px;background:transparent;border:1px solid #334155;color:#64748b;border-radius:5px;padding:2px 8px;cursor:pointer">
-            ${hito.fecha_real?'✏️ Editar':'📅 Fecha real'}
+            ✏️ Editar hito
           </button>
         </div>
         ${avInfo ? `<div style="background:#0f172a;border-radius:7px;padding:8px 10px;margin-top:7px">
           <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:10px;color:#64748b">${hito.tipo==='fundacion'?'🏗️ Fundaciones':'🔧 Montajes'} · meta ${hito.meta_pct}%</span>
+            <span style="font-size:10px;color:#64748b">${hito.tipo==='fundacion'?'🏗️ Fundaciones':hito.tipo==='montaje'?'🔧 Montajes':'🔌 Tendido'} · meta ${hito.meta_pct}%</span>
             <span style="font-size:11px;font-weight:700;color:${metaOk?'#10b981':'#f59e0b'}">${metaOk?'✅':'⚠️'} ${avInfo.pct}%</span>
           </div>
           <div class="bar-wrap" style="height:5px;margin-bottom:5px">
@@ -2180,6 +2825,8 @@ function renderHitosSector(key) {
     isla:       { icon:'🏝️', title:'LAT Lado Isla',       subtitle:'T181 – T245 · Globaltec',              color:'#06b6d4' },
     continente: { icon:'🏔️', title:'LAT Lado Continente', subtitle:'T15 – T41 · Globaltec',                color:'#8b5cf6' },
     cruce:      { icon:'⛓️',  title:'Cruce Canal de Chacao',subtitle:'Torres 1A/1B/2C/3C/4A/4B · CSTC',    color:'#f59e0b' },
+    pine:       { icon:'⚡', title:'Ampliación SE Tineo',  subtitle:'Obras de subestación · PINE',          color:'#a78bfa' },
+    elecnor:    { icon:'🏗️', title:'Elecnor',              subtitle:'Alcance por definir · Elecnor',        color:'#e11d48' },
   };
   const meta = SECTOR_META[key];
   const hitos = HITOS_DATA[key] || [];
@@ -2249,6 +2896,8 @@ function renderHitos() {
     { key:'isla',       icon:'🏝️', title:'LAT Lado Isla',       subtitle:'Torres 181 – 245',         sub2:'Globaltec',  color:'#06b6d4' },
     { key:'continente', icon:'🏔️', title:'LAT Lado Continente', subtitle:'Torres 15 – 41',            sub2:'Globaltec',  color:'#8b5cf6' },
     { key:'cruce',      icon:'⛓️',  title:'Cruce Canal de Chacao',subtitle:'1A · 1B · 2C · 3C · 4A · 4B', sub2:'CSTC', color:'#f59e0b' },
+    { key:'pine',       icon:'⚡', title:'Ampliación SE Tineo', subtitle:'Obras de subestación',      sub2:'PINE',       color:'#a78bfa' },
+    { key:'elecnor',    icon:'🏗️', title:'Elecnor',             subtitle:'Alcance y fechas por definir', sub2:'Elecnor', color:'#e11d48' },
   ];
 
   // Global alert summary
@@ -2323,33 +2972,88 @@ function renderHitos() {
 }
 
 
-// Load hito dates from Firebase/localStorage on init
+// Load hito dates (fecha_pm / fecha_doc / fecha_real) from Firebase/localStorage on init.
+// Los hitos multables (incluyendo los de PINE y Elecnor) son 100% editables desde la UI
+// (ver editarHitoFecha) porque puede haber acuerdos que muevan estas fechas.
 function loadHitoFechas() {
+  try {
+    const saved = localStorage.getItem('hitos_fechas_v2');
+    if (saved) {
+      const all = JSON.parse(saved);
+      Object.keys(all).forEach(key => {
+        const idx = key.lastIndexOf('_');
+        const tramo = key.slice(0, idx), n = key.slice(idx+1);
+        const h = HITOS_DATA[tramo] && HITOS_DATA[tramo].find(x=>x.n===parseInt(n));
+        if (h) Object.assign(h, all[key]);
+      });
+    }
+  } catch {}
   if (dbReady && db) {
-    db.ref('hitos').once('value', snap => {
+    db.ref('hitos').on('value', snap => {
       const data = snap.val();
       if (!data) return;
       Object.keys(data).forEach(tramo => {
         if (!HITOS_DATA[tramo]) return;
         Object.keys(data[tramo]).forEach(n => {
           const h = HITOS_DATA[tramo].find(x=>x.n===parseInt(n));
-          if (h && data[tramo][n].fecha_real) h.fecha_real = data[tramo][n].fecha_real;
+          if (h) Object.assign(h, data[tramo][n]);
         });
       });
+      renderCurrentView();
     });
-  } else {
-    try {
-      const saved = localStorage.getItem('hitos_fechas');
-      if (saved) {
-        const fechas = JSON.parse(saved);
-        Object.keys(fechas).forEach(key => {
-          const [tramo, n] = key.split('_');
-          const h = HITOS_DATA[tramo] && HITOS_DATA[tramo].find(x=>x.n===parseInt(n));
-          if (h && fechas[key]) h.fecha_real = fechas[key];
-        });
-      }
-    } catch {}
   }
+}
+
+// Abre un modal para editar las 3 fechas de un hito (PM, Doc y Real).
+// Disponible para TODOS los tramos (Isla, Continente, Cruce, PINE, Elecnor) — las fechas
+// pueden cambiar por acuerdos entre las partes, así que siempre quedan editables.
+function editarHitoFecha(tramo, n) {
+  const h = HITOS_DATA[tramo] && HITOS_DATA[tramo].find(x=>x.n===n);
+  if (!h) return;
+  const val = (v) => (v && v!=='POR DEFINIR') ? v : '';
+  const html = `
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:12px">Puedes cambiar el nombre del hito y sus fechas. Los cambios quedan guardados y se sincronizan para todos.</div>
+    <div class="form-group">
+      <label class="form-label">✏️ Nombre / descripción del hito</label>
+      <input id="hf-desc" class="form-input" style="width:100%" value="${(h.desc||'').replace(/"/g,'&quot;')}"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="color:#94a3b8">📋 Fecha PM (comprometida)</label>
+      <input type="date" id="hf-pm" value="${val(h.fecha_pm)}"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="color:#94a3b8">📄 Fecha Doc (notificada)</label>
+      <input type="date" id="hf-doc" value="${val(h.fecha_doc)}"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="color:#10b981">✅ Fecha Real (cumplimiento)</label>
+      <input type="date" id="hf-real" value="${val(h.fecha_real)}"/>
+    </div>
+    <button class="action-btn btn-primary" onclick="guardarHitoFechas('${tramo}',${n})">💾 Guardar hito</button>
+    <button class="action-btn btn-secondary" onclick="closeModal()">Cancelar</button>`;
+  openModal('✏️ Editar Hito', html);
+}
+function guardarHitoFechas(tramo, n) {
+  const h = HITOS_DATA[tramo] && HITOS_DATA[tramo].find(x=>x.n===n);
+  if (!h) { closeModal(); return; }
+  const descEl = document.getElementById('hf-desc');
+  const pmEl = document.getElementById('hf-pm'), docEl = document.getElementById('hf-doc'), realEl = document.getElementById('hf-real');
+  if (descEl && descEl.value.trim()) h.desc = descEl.value.trim();
+  h.fecha_pm = (pmEl && pmEl.value) || null;
+  h.fecha_doc = (docEl && docEl.value) || null;
+  h.fecha_real = (realEl && realEl.value) || null;
+  saveHitoFechas(tramo, n, h);
+  closeModal();
+  showToast('✅ Hito guardado');
+  renderCurrentView();
+}
+function saveHitoFechas(tramo, n, h) {
+  const key = tramo+'_'+n;
+  let all = {};
+  try { all = JSON.parse(localStorage.getItem('hitos_fechas_v2')||'{}'); } catch {}
+  all[key] = {desc:h.desc, fecha_pm:h.fecha_pm, fecha_doc:h.fecha_doc, fecha_real:h.fecha_real};
+  try { localStorage.setItem('hitos_fechas_v2', JSON.stringify(all)); } catch {}
+  if (dbReady && db) db.ref('hitos/'+tramo+'/'+n).set(all[key]);
 }
 
 
@@ -2671,7 +3375,7 @@ function renderDashboard() {
   const TORRES_LINEA_TOTAL = 245;
   const TORRES_ESPECIALES_TOTAL = 6;
   const ESPECIALES_IDS = ['1A','1B','2C','3C','4A','4B'];
-  let sinConfig=0, impedimento=0, sumaGlobal=0, sumaFnd=0, sumaMnt=0;
+  let sinConfig=0, impedimento=0, sumaGlobal=0, sumaFnd=0, sumaMnt=0, sumaTnd=0;
   let islaTotal=0, contTotal=0, islaAv=0, contAv=0;
   let lineaAv=0, especialesAv=0;
   let protoObs=0;
@@ -2684,8 +3388,8 @@ function renderDashboard() {
   torresTotales.forEach(t => {
     const av = avances[t.id]||{};
     if (!av._fnd) { sinConfig++; return; }
-    const g = calcGlobal(av), fnd = calcFnd(av), mnt = calcMnt(av);
-    sumaGlobal += g; sumaFnd += fnd; sumaMnt += mnt;
+    const g = calcGlobal(av), fnd = calcFnd(av), mnt = calcMnt(av), tnd = calcTnd(av);
+    sumaGlobal += g; sumaFnd += fnd; sumaMnt += mnt; sumaTnd += tnd;
     if (isImpedimento(av)) impedimento++;
     if (ESPECIALES_IDS.includes(String(t.id))) especialesAv += g;
     else lineaAv += g;
@@ -2703,6 +3407,7 @@ function renderDashboard() {
   const pctEspeciales = TORRES_ESPECIALES_TOTAL ? especialesAv/TORRES_ESPECIALES_TOTAL : 0;
   const pctFnd = total ? sumaFnd/total : 0;
   const pctMnt = total ? sumaMnt/total : 0;
+  const pctTnd = total ? sumaTnd/total : 0;
 
   const gaugeCard = (value, label, sub, color, onclick='') => {
     const v = Math.max(0, Math.min(1, value||0));
@@ -2723,11 +3428,11 @@ function renderDashboard() {
   // kpiCard ahora es una función global (ver más arriba), reutilizada también por renderPorSector
 
   const nextHitos = [];
-  ['continente','isla','cruce'].forEach(key => {
+  ['continente','isla','cruce','pine','elecnor'].forEach(key => {
     (HITOS_DATA[key]||[]).forEach(h => {
       if (h.fecha_real) return;
       const est = calcHitoEstado(h);
-      const avInfo = (h.tipo==='fundacion'||h.tipo==='montaje') ? calcHitoAvanceTorres(h) : null;
+      const avInfo = (h.tipo==='fundacion'||h.tipo==='montaje'||h.tipo==='tendido') ? calcHitoAvanceTorres(h) : null;
       nextHitos.push({...h, key, est, avInfo});
     });
   });
@@ -2737,10 +3442,11 @@ function renderDashboard() {
     if (ra!==rb) return ra-rb;
     return (a.est.dias??9999)-(b.est.dias??9999);
   });
+  const SECTOR_NAMES = {isla:'Isla', continente:'Continente', cruce:'Cruce', pine:'SE Tineo (PINE)', elecnor:'Elecnor'};
   const hitoCards = nextHitos.slice(0,4).map(h=>{
     const avPct = h.avInfo ? h.avInfo.pct : 0;
     const meta = h.meta_pct || 100;
-    const sectorName = h.key==='isla'?'Isla':h.key==='continente'?'Continente':'Cruce';
+    const sectorName = SECTOR_NAMES[h.key] || h.key;
     return `<div onclick="setHitoSector('${h.key}')" style="background:#ffffff;border:1px solid ${h.est.color}55;border-left:4px solid ${h.est.color};border-radius:10px;padding:10px;cursor:pointer;box-shadow:0 1px 2px rgba(15,23,42,.04)">
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
         <div>
@@ -2775,6 +3481,7 @@ function renderDashboard() {
         ${gaugeCard(pctEspeciales,'Avance torres especiales','6 torres especiales / cruce','#7c3aed')}
         ${gaugeCard(pctFnd,'Fundaciones','Anclas + hormigón + tradicional','#0891b2')}
         ${gaugeCard(pctMnt,'Montaje estructuras','Prearmado, montaje, giro y aplome','#16a34a')}
+        ${gaugeCard(pctTnd,'Tendido','Vestido, perlón, conductor y remates','#f59e0b')}
       </div>
     </div>
 
@@ -3286,6 +3993,7 @@ function renderProtoByPartida() {
       });
     }
     getEtapasMontaje().forEach(e => addProto(e.label, protoKey(e.id)));
+    getEtapasTendido().forEach(e => addProto(e.label, protoKey(e.id)));
   });
   return Object.keys(partidas).map(nombre => {
     const d=partidas[nombre];
@@ -3315,25 +4023,28 @@ function renderConfig() {
   const anclaTotal = ['ancla_trazado_anclas','ancla_inst_anclas','ancla_montaje_cabezal','ancla_grouting'].reduce((s,k)=>s+(PESOS[k]||0),0);
   const hormTotal = ['horm_trazado_h','horm_inst_anclas_h','horm_excavacion','horm_armadura_zapatas','horm_armadura_vastagos','horm_inst_stubs','horm_moldajes','horm_hormigonado','horm_relleno_compact'].reduce((s,k)=>s+(PESOS[k]||0),0);
   const mntTotal = ['mnt_recepcion_material','mnt_prearmado','mnt_montaje_estructura','mnt_giro_aplome_torque'].reduce((s,k)=>s+(PESOS[k]||0),0);
-  const globalTotal = genTotal + (PESOS.global_fnd||0) + (PESOS.global_mnt||0);
+  const tndTotal = ['tnd_vestido','tnd_perlon','tnd_conductor','tnd_remates','tnd_miscelaneos'].reduce((s,k)=>s+(PESOS[k]||0),0);
+  const globalTotal = genTotal + (PESOS.global_fnd||0) + (PESOS.global_mnt||0) + (PESOS.global_tnd||0);
 
   // % real = peso_interno × peso_bloque
   const realPct = (k) => {
     if (k.startsWith('gen_')) return (PESOS[k]||0)*100;
     if (k.startsWith('ancla_')) return (PESOS[k]||0)*(PESOS.global_fnd||0)*100;
     if (k.startsWith('horm_')) return (PESOS[k]||0)*(PESOS.global_fnd||0)*100;
+    if (k.startsWith('trad_')) return (PESOS[k]||0)*(PESOS.global_fnd||0)*100;
     if (k.startsWith('mnt_')) return (PESOS[k]||0)*(PESOS.global_mnt||0)*100;
+    if (k.startsWith('tnd_')) return (PESOS[k]||0)*(PESOS.global_tnd||0)*100;
     return (PESOS[k]||0)*100;
   };
 
   const fieldRow = (k, lbl, hint='') => {
     const rp = realPct(k).toFixed(1);
-    return `<div class="config-row" style="margin-bottom:10px">
-      <div style="flex:1">
-        <div style="font-size:12px;color:#cbd5e1">${lbl}</div>
-        ${hint?`<div style="font-size:9px;color:#475569">${hint}</div>`:''}
-      </div>
+    const nombre = ETAPA_LABELS[k] || lbl;
+    return `<div class="config-row" style="margin-bottom:10px;flex-direction:column;align-items:stretch;gap:4px">
       <div style="display:flex;align-items:center;gap:8px">
+        <input type="text" value="${nombre}" placeholder="${lbl}"
+          onchange="ETAPA_LABELS['${k}']=this.value;renderCurrentView()"
+          style="flex:1;font-size:12px;padding:6px 8px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#cbd5e1"/>
         <span style="font-size:11px;color:#10b981;font-weight:700;min-width:36px;text-align:right">${rp}%</span>
         <span style="font-size:9px;color:#334155">real</span>
         <input type="number" class="config-input" min="0" max="1" step="0.005"
@@ -3341,15 +4052,17 @@ function renderConfig() {
           onchange="PESOS['${k}']=parseFloat(this.value)||0;renderCurrentView()"
           style="width:64px"/>
       </div>
+      ${hint?`<div style="font-size:9px;color:#475569">${hint}</div>`:''}
     </div>`;
   };
 
-  const genOK = Math.abs(genTotal + (PESOS.global_fnd||0) + (PESOS.global_mnt||0) - 1) < 0.005;
+  const genOK = Math.abs(genTotal + (PESOS.global_fnd||0) + (PESOS.global_mnt||0) + (PESOS.global_tnd||0) - 1) < 0.005;
   const anclaOK = Math.abs(anclaTotal - 1) < 0.005;
   const tradTotal = ['trad_replanteo','trad_escarpe','trad_excavacion','trad_sello','trad_emplantillado','trad_enfierraduras','trad_moldajes','trad_horm_zapata','trad_pernos_anclaje','trad_horm_pedestal','trad_relleno_compact','trad_malla_pat'].reduce((s,k)=>s+(PESOS[k]||0),0);
   const tradOK = Math.abs(tradTotal - 1) < 0.005;
   const hormOK = Math.abs(hormTotal - 1) < 0.005;
   const mntOK = Math.abs(mntTotal - 1) < 0.005;
+  const tndOK = Math.abs(tndTotal - 1) < 0.005;
 
   const sectionHeader = (icon, title, subtotal, subtotalLabel, isOK) => `
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
@@ -3374,6 +4087,7 @@ function renderConfig() {
         ['Etapas Generales', genTotal, '#06b6d4'],
         ['Fundación (bloque)', PESOS.global_fnd||0, '#0ea5e9'],
         ['Montaje (bloque)', PESOS.global_mnt||0, '#10b981'],
+        ['Tendido (bloque)', PESOS.global_tnd||0, '#f59e0b'],
       ].map(([lbl,val,col])=>`
         <div style="margin-bottom:8px">
           <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -3394,7 +4108,7 @@ function renderConfig() {
 
     <!-- Pesos bloque global -->
     <div class="config-section">
-      ${sectionHeader('🌍','Pesos de Bloque Global', globalTotal, 'Gen + Fnd + Mnt debe = 100%', genOK)}
+      ${sectionHeader('🌍','Pesos de Bloque Global', globalTotal, 'Gen + Fnd + Mnt + Tnd debe = 100%', genOK)}
       <div style="background:#0f172a;border-radius:8px;padding:10px;margin-bottom:10px">
         <div style="font-size:10px;color:#475569;margin-bottom:8px">Ajusta cuánto vale cada bloque en el total</div>
         <div class="config-row" style="margin-bottom:8px">
@@ -3406,7 +4120,7 @@ function renderConfig() {
               onchange="PESOS['global_fnd']=parseFloat(this.value)||0;renderCurrentView()" style="width:64px"/>
           </div>
         </div>
-        <div class="config-row">
+        <div class="config-row" style="margin-bottom:8px">
           <span class="config-label">Bloque Montaje</span>
           <div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:11px;color:#10b981;font-weight:700">${((PESOS.global_mnt||0)*100).toFixed(0)}%</span>
@@ -3415,17 +4129,26 @@ function renderConfig() {
               onchange="PESOS['global_mnt']=parseFloat(this.value)||0;renderCurrentView()" style="width:64px"/>
           </div>
         </div>
+        <div class="config-row">
+          <span class="config-label">Bloque Tendido</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:#f59e0b;font-weight:700">${((PESOS.global_tnd||0)*100).toFixed(0)}%</span>
+            <input type="number" class="config-input" min="0" max="1" step="0.01"
+              value="${(PESOS.global_tnd||0).toFixed(2)}"
+              onchange="PESOS['global_tnd']=parseFloat(this.value)||0;renderCurrentView()" style="width:64px"/>
+          </div>
+        </div>
         <div style="font-size:10px;color:#475569;margin-top:8px">
-          ⚠️ Bloque Generales = 100% − Fnd − Mnt = ${((1-(PESOS.global_fnd||0)-(PESOS.global_mnt||0))*100).toFixed(1)}%<br>
-          Distribuye ese valor entre las 6 etapas generales abajo.
+          ⚠️ Bloque Generales = 100% − Fnd − Mnt − Tnd = ${((1-(PESOS.global_fnd||0)-(PESOS.global_mnt||0)-(PESOS.global_tnd||0))*100).toFixed(1)}%<br>
+          Distribuye ese valor entre las etapas generales abajo.
         </div>
       </div>
     </div>
 
     <!-- Etapas Generales -->
     <div class="config-section">
-      ${sectionHeader('📋','Etapas Generales', genTotal, 'Suma de los 6 pesos directos (deben = 100% − Fnd − Mnt)', Math.abs(genTotal - (1-(PESOS.global_fnd||0)-(PESOS.global_mnt||0)))<0.005)}
-      <div style="font-size:10px;color:#475569;margin-bottom:8px">Cada valor es el % directo que esa actividad aporta a la torre</div>
+      ${sectionHeader('📋','Etapas Generales', genTotal, 'Suma de los 6 pesos directos (deben = 100% − Fnd − Mnt − Tnd)', Math.abs(genTotal - (1-(PESOS.global_fnd||0)-(PESOS.global_mnt||0)-(PESOS.global_tnd||0)))<0.005)}
+      <div style="font-size:10px;color:#475569;margin-bottom:8px">Cada valor es el % directo que esa actividad aporta a la torre. El nombre de cada partida también es editable.</div>
       ${fieldRow('gen_liberacion','Liberación Servidumbre')}
       ${fieldRow('gen_perturbacion','Perturbación Controlada')}
       ${fieldRow('gen_tala_roce','Tala y Roce')}
@@ -3434,8 +4157,8 @@ function renderConfig() {
       ${fieldRow('gen_malla_tierra','Malla Puesta a Tierra')}
       <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #334155">
         <span style="font-size:10px;color:#64748b">Suma</span>
-        <span class="config-total" style="background:${Math.abs(genTotal-(1-(PESOS.global_fnd||0)-(PESOS.global_mnt||0)))<0.005?'#15803d22':'#7f1d1d22'};color:${Math.abs(genTotal-(1-(PESOS.global_fnd||0)-(PESOS.global_mnt||0)))<0.005?'#10b981':'#f43f5e'}">
-          ${(genTotal*100).toFixed(1)}% (objetivo: ${((1-(PESOS.global_fnd||0)-(PESOS.global_mnt||0))*100).toFixed(1)}%)
+        <span class="config-total" style="background:${Math.abs(genTotal-(1-(PESOS.global_fnd||0)-(PESOS.global_mnt||0)-(PESOS.global_tnd||0)))<0.005?'#15803d22':'#7f1d1d22'};color:${Math.abs(genTotal-(1-(PESOS.global_fnd||0)-(PESOS.global_mnt||0)-(PESOS.global_tnd||0)))<0.005?'#10b981':'#f43f5e'}">
+          ${(genTotal*100).toFixed(1)}% (objetivo: ${((1-(PESOS.global_fnd||0)-(PESOS.global_mnt||0)-(PESOS.global_tnd||0))*100).toFixed(1)}%)
         </span>
       </div>
     </div>
@@ -3517,8 +4240,26 @@ function renderConfig() {
       </div>
     </div>
 
-    <button class="action-btn btn-primary" onclick="guardarPesos()">💾 Guardar Ponderaciones</button>
+    <!-- Tendido -->
+    <div class="config-section">
+      ${sectionHeader('🔌','Tendido', tndTotal, 'Pesos internos del bloque — deben sumar 1.0 (100% del bloque)', tndOK)}
+      <div style="font-size:10px;color:#475569;margin-bottom:8px">
+        Columna verde = % real sobre la torre (interno × ${((PESOS.global_tnd||0)*100).toFixed(0)}% bloque)
+      </div>
+      ${fieldRow('tnd_vestido','Vestido de Torre')}
+      ${fieldRow('tnd_perlon','Tendido de Perlón')}
+      ${fieldRow('tnd_conductor','Tendido de Conductor')}
+      ${fieldRow('tnd_remates','Remates')}
+      ${fieldRow('tnd_miscelaneos','Misceláneos')}
+      <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #334155">
+        <span style="font-size:10px;color:#64748b">Suma interna</span>
+        <span class="config-total" style="background:${tndOK?'#15803d22':'#7f1d1d22'};color:${tndOK?'#10b981':'#f43f5e'}">${(tndTotal*100).toFixed(0)}% ${tndOK?'✓':'⚠️ debe ser 100%'}</span>
+      </div>
+    </div>
+
+    <button class="action-btn btn-primary" onclick="guardarPesos()">💾 Guardar Ponderaciones y Nombres</button>
     <button class="action-btn btn-secondary" onclick="resetPesos()">↺ Restaurar Pesos Defaults</button>
+    <button class="action-btn btn-secondary" onclick="resetEtapaLabels()">↺ Restaurar Nombres de Partidas</button>
 
     <!-- ── EDITOR DE TÍTULOS ── -->
     <div class="config-section" style="margin-top:8px">
@@ -3579,7 +4320,7 @@ function renderConfig() {
   </div>`;
 }
 
-function guardarPesos() { savePesos(); showToast('✅ Ponderaciones guardadas'); renderCurrentView(); }
+function guardarPesos() { savePesos(); saveEtapaLabels(); showToast('✅ Ponderaciones y nombres guardados'); renderCurrentView(); }
 
 function resetPesos() { PESOS = JSON.parse(JSON.stringify(DEFAULT_PESOS)); savePesos(); showToast('↺ Pesos restaurados'); renderCurrentView(); }
 function limpiarDatosLocales() {
@@ -4148,12 +4889,35 @@ function setMontajeBtn(key, pctVal) {
   renderMontajeSection();
 }
 
+function setTendido(key,val) {
+  setTendidoBtn(key, Math.round(parseFloat(val)));
+}
+
+function setTendidoBtn(key, pctVal) {
+  const numVal = pctVal/100;
+  if (!avances[currentTorreId]) avances[currentTorreId]={};
+  avances[currentTorreId][key]=numVal;
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(avances)); } catch {}
+  saveAvanceDebounced(currentTorreId);
+  // Actualizar barra de esta partida
+  const barEl=document.getElementById('bar_tnd_'+key);
+  if(barEl) { barEl.style.width=pctVal+'%'; barEl.style.background='#0ea5e9'; }
+  // Re-render solo los botones de esta fila para marcar el activo
+  const av=avances[currentTorreId]||{};
+  const newTnd=calcTnd(av);
+  const tndBadgeEl=document.getElementById('badge_tnd');
+  if(tndBadgeEl) tndBadgeEl.innerHTML=badge(newTnd);
+  updateGlobalPct();
+  // Re-render la sección tendido para actualizar botones activos
+  renderTendidoSection();
+}
+
 function setPataValBtn(eid, p, pctVal) {
   setPataVal(eid, p, pctVal);
 }
 
 function applyManual(id, p, type) {
-  const inputId = type==='pata' ? `manual_${id}_p${p}` : `manual_mnt_${id}`;
+  const inputId = type==='pata' ? `manual_${id}_p${p}` : type==='tnd' ? `manual_tnd_${id}` : `manual_mnt_${id}`;
   const input = document.getElementById(inputId);
   if (!input) return;
   let val = parseInt(input.value);
@@ -4163,6 +4927,8 @@ function applyManual(id, p, type) {
   input.placeholder = val;
   if (type === 'pata') {
     setPataVal(id, p, val);
+  } else if (type === 'tnd') {
+    setTendidoBtn(id, val);
   } else {
     setMontajeBtn(id, val);
   }
@@ -4307,6 +5073,20 @@ function renderMontajeSection() {
   if (!mntEl) return;
   const mnt = calcMnt(av);
   mntEl.innerHTML = getEtapasMontaje().map(e=>actMntHtml(e,av)).join('');
+}
+function renderTendidoSection() {
+  // Re-render solo la sección de tendido para actualizar estado de botones
+  // sin afectar el resto de la vista (no interrumpe scroll)
+  const av = avances[currentTorreId]||{};
+  const tndEl = document.getElementById('tendido-section');
+  if (!tndEl) return;
+  tndEl.innerHTML = getEtapasTendido().map(e=>actTndHtml(e,av)).join('');
+}
+function toggleNA_tnd(key) {
+  const av=avances[currentTorreId]||{};
+  if (!avances[currentTorreId]) avances[currentTorreId]={};
+  avances[currentTorreId][key]=av[key]==='na'?0:'na';
+  saveAvance(currentTorreId); renderCurrentView();
 }
 function toggleNA_mnt(key) {
   const av=avances[currentTorreId]||{};
@@ -4528,6 +5308,26 @@ function actMntHtml(e, av) {
   </div>`;
 }
 
+function actTndHtml(e, av) {
+  const key=e.id, val=av[key], isNA=val==='na', num=isNA?1:(val||0);
+  const col='#0ea5e9';
+  return `<div class="act-row">
+    <div class="act-top" style="margin-bottom:${isNA?'0':'6px'}">
+      <span class="act-label" style="flex:1;font-size:12px;color:${isNA?'#334155':num>=1?'#0ea5e9':num>0?'#d97706':'#94a3b8'};${isNA?'text-decoration:line-through':''}">${e.label} <span style="font-size:9px;color:#475569">×${e.peso}</span></span>
+      ${isNA?'<span style="font-size:9px;font-weight:700;color:#475569;background:#1e293b;border-radius:4px;padding:2px 5px">N/A</span>':badge(num)}
+      <button class="act-na-btn" style="border:1px solid ${isNA?'#f59e0b':'#334155'};background:${isNA?'#431407':'transparent'};color:${isNA?'#f59e0b':'#475569'}"
+        onclick="toggleNA_tnd('${key}')">N/A</button>
+    </div>
+    ${!isNA?`
+      <div class="bar-wrap" style="height:5px;margin-bottom:4px">
+        <div id="bar_tnd_${key}" class="bar-fill" style="width:${pct(num)}%;background:${col};height:100%"></div>
+      </div>
+      ${pctBtns(num,'tnd',key,0,col)}
+    `:''}
+    ${protoTorreHtml(protoKey(key),av)}
+  </div>`;
+}
+
 function resetTorre(id) {
   const html = '<div style="font-size:13px;color:#94a3b8;margin-bottom:16px">'
     + 'Esto borrará <b style="color:#f43f5e">todos los datos</b> de la Torre <b style="color:#f59e0b">'+id+'</b>:<br>'
@@ -4551,7 +5351,7 @@ function confirmarResetTorre(id) {
 function renderDetalle(id) {
   const torre=TORRES_MAP[id], av=avances[id]||{};
   const cfg=!!av._fnd, g=cfg?calcGlobal(av):0;
-  const fnd=cfg?calcFnd(av):0, mnt=cfg?calcMnt(av):0;
+  const fnd=cfg?calcFnd(av):0, mnt=cfg?calcMnt(av):0, tnd=cfg?calcTnd(av):0;
   const fndColor=av._fnd==='ancla'?'#0ea5e9':av._fnd==='hormigon'?'#a78bfa':'#475569';
   const fndLabel=av._fnd==='ancla'?'⚓ Cabezal':av._fnd==='hormigon'?'🏗️ Hormigón':av._fnd==='na'?'✖️ N/A':'Sin configurar';
   const si=statusInfo(av);
@@ -4602,6 +5402,7 @@ function renderDetalle(id) {
       ${cfg?`<div style="display:flex;gap:12px;margin-top:8px">
         <div><div style="font-size:9px;color:#64748b">Fundación</div><div style="font-size:14px;font-weight:700;color:${getColor(fnd)}">${pct(fnd)}%</div></div>
         <div><div style="font-size:9px;color:#64748b">Montaje</div><div style="font-size:14px;font-weight:700;color:${getColor(mnt)}">${pct(mnt)}%</div></div>
+        <div><div style="font-size:9px;color:#64748b">Tendido</div><div style="font-size:14px;font-weight:700;color:${getColor(tnd)}">${pct(tnd)}%</div></div>
         ${cnt.total>0?`<div><div style="font-size:9px;color:#64748b">Proto OK</div><div style="font-size:14px;font-weight:700;color:#10b981">${cnt.ok}/${cnt.total}</div></div>`:''}
         <div><div style="font-size:9px;color:#64748b">Actualizado</div><div style="font-size:10px;color:#475569">${formatDate(av._updated)}</div></div>
         ${getPrimeraFechaInicio(av)?`<div><div class="det-mini-label">Inicio obra</div><div class="det-mini-val" style="color:#60a5fa;font-size:11px">🗓️ ${getPrimeraFechaInicio(av)}</div></div>`:''}
@@ -4651,12 +5452,21 @@ function renderDetalle(id) {
     </div>`}
 
     <!-- Montaje -->
-    <div class="card">
+    <div class="card" style="margin-bottom:10px">
       <div class="sec-hdr">
         <div class="sec-title">🏗️ MONTAJE ESTRUCTURA</div>
         <span id="badge_mnt">${badge(mnt)}</span>
       </div>
       <div id="montaje-section">${getEtapasMontaje().map(e=>actMntHtml(e,av)).join('')}</div>
+    </div>
+
+    <!-- Tendido -->
+    <div class="card">
+      <div class="sec-hdr">
+        <div class="sec-title">🔌 TENDIDO</div>
+        <span id="badge_tnd">${badge(tnd)}</span>
+      </div>
+      <div id="tendido-section">${getEtapasTendido().map(e=>actTndHtml(e,av)).join('')}</div>
     </div>
     `:''}
 
@@ -4766,6 +5576,8 @@ window.addEventListener('load', () => {
   initFirebase();
   loadHitoFechas();
   loadSectorTitles();
+  loadEtapaLabels();
+  loadVanoOverrides();
   initStorage();
 });
 
